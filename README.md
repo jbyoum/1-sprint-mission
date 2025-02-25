@@ -7,7 +7,7 @@ https://one-sprint-mission.onrender.com
 
 ## API /products /articles
 ### /
-- get
+- get<br/>
 query parameter : offset = 0, limit = 10, order, title = "", content = ""<br/>
 order : "recent" -> desc, else -> asc<br/>
 title, content : search keyword
@@ -20,7 +20,7 @@ title, content : search keyword
 - delete
 
 ### /comment
-- get
+- get<br/>
 query parameter : limit = 10, cursorId<br/>
 cursorId : specific comment ID before the first record of results
 
