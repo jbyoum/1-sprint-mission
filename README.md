@@ -1,17 +1,42 @@
 
-## 요구사항
-
-### 기본
-- [x] Product 구현
-- [x] Article 구현
-
-### 심화
-- [x] API로 함수 구현
-- [x] 파일 분리
-
 ## 주요 변경사항
-- main테스트를 위해 기타기능확인용 함수 주석처리
+- 이미지 유효성을 위한 mime type 검증
 
+## 배포 링크
+https://one-sprint-mission.onrender.com
+
+## API /products /articles
+### /
+- get<br/>
+query parameter : offset = 0, limit = 10, order, title = "", content = ""<br/>
+order : "recent" -> desc, else -> asc<br/>
+title, content : search keyword
+
+- post
+
+### /:id
+- get
+- patch
+- delete
+
+### /comment
+- get<br/>
+query parameter : limit = 10, cursorId<br/>
+cursorId : specific comment ID before the first record of results
+
+### /comment/:id
+- post
+- patch
+- delete
+
+## API /upload
+- get<br/>
+return upload webpage
+
+## API /download
+### /[specific file path]
+- get<br/>
+return file
 
 ## 멘토에게
 - 감사합니다. 
