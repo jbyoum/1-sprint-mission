@@ -8,8 +8,8 @@ https://one-sprint-mission.onrender.com
 ## API /products /articles
 ### /
 - get
-query parameter : offset = 0, limit = 10, order, title = "", content = ""
-order : "recent" -> desc, else -> asc
+query parameter : offset = 0, limit = 10, order, title = "", content = ""<br/>
+order : "recent" -> desc, else -> asc<br/>
 title, content : search keyword
 
 - post
@@ -21,7 +21,7 @@ title, content : search keyword
 
 ### /comment
 - get
-query parameter : limit = 10, cursorId
+query parameter : limit = 10, cursorId<br/>
 cursorId : specific comment ID before the first record of results
 
 ### /comment/:id
@@ -30,12 +30,12 @@ cursorId : specific comment ID before the first record of results
 - delete
 
 ## API /upload
-- get
+- get<br/>
 return upload webpage
 
 ## API /download
 ### /[specific file path]
-- get
+- get<br/>
 return file
 
 ## 멘토에게
