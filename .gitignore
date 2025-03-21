@@ -1,5 +1,10 @@
-node_modules
-# Keep environment variables out of version control
-.env
-files
-request
+# Local files
+.vscode/
+node_modules/
+.env*
+!.env.example
+
+# Uploaded files
+public/*
+!public/.gitkeep
+
