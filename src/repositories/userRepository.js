@@ -1,7 +1,7 @@
 import prisma from '../config/prismaClient.js';
 
 async function findById(id) {
-  return prisma.user.findUnique({
+  return await prisma.user.findUnique({
     where: {
       id,
     },
@@ -17,13 +17,13 @@ async function findByEmail(email) {
 }
 
 async function create(user) {
-  return prisma.user.create({
+  return await prisma.user.create({
     data: user,
   });
 }
 
 async function update(id, data) {
-  return prisma.user.update({
+  return await prisma.user.update({
     where: {
       id,
     },

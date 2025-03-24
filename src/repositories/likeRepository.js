@@ -1,12 +1,14 @@
 import prisma from '../config/prismaClient.js';
 
 async function findByArticle(userId, articleId) {
-  return prisma.like.findUnique({
-    where: {
-      userId: userId,
-      articleId: articleId,
-    },
-  });
+  return (
+    await prisma.like.findMany({
+      where: {
+        userId: userId,
+        articleId: articleId,
+      },
+    })
+  )?.[0];
 }
 
 async function findByProduct(userId, productId) {
@@ -23,13 +25,13 @@ async function getList(where) {
 }
 
 async function create(like) {
-  return prisma.like.create({
+  return await prisma.like.create({
     data: like,
   });
 }
 
 async function removeByArticle(userId, articleId) {
-  return prisma.like.remove({
+  return await prisma.like.deleteMany({
     where: {
       userId: userId,
       articleId: articleId,
@@ -38,7 +40,7 @@ async function removeByArticle(userId, articleId) {
 }
 
 async function removeByProduct(userId, productId) {
-  return prisma.like.remove({
+  return await prisma.like.deleteMany({
     where: {
       userId: userId,
       productId: productId,

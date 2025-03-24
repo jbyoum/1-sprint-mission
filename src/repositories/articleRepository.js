@@ -28,7 +28,7 @@ async function update(id, data) {
 }
 
 async function remove(id) {
-  return await prisma.article.remove({
+  return await prisma.article.delete({
     where: {
       id: parseInt(id, 10),
     },

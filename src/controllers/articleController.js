@@ -86,11 +86,9 @@ export async function createComment(req, res) {
   const { id: userId } = create({ id: req.user.id }, IdParamsStruct);
 
   const comment = await commentService.create({
-    data: {
-      articleId: articleId,
-      content,
-      userId: userId,
-    },
+    articleId: articleId,
+    content,
+    userId: userId,
   });
 
   return res.status(201).send(comment);

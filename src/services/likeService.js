@@ -1,11 +1,11 @@
 import likeRepository from '../repositories/likeRepository.js';
 
 async function getByArticle(userId, articleId) {
-  return await likeRepository.getByArticle(userId, articleId);
+  return await likeRepository.findByArticle(userId, articleId);
 }
 
 async function getByProduct(userId, productId) {
-  return await likeRepository.getByProduct(userId, productId);
+  return await likeRepository.findByProduct(userId, productId);
 }
 
 async function getList(where) {
