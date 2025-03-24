@@ -24,8 +24,8 @@ async function deleteById(id) {
   return commentRepository.deleteById(id);
 }
 
-async function getEntityName() {
-  return await commentRepository.getEntityName();
+function getEntityName() {
+  return commentRepository.getEntityName();
 }
 
 export default {

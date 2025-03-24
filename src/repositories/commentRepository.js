@@ -7,17 +7,15 @@ async function create(comment) {
 }
 
 async function getById(id) {
-  const comment = await prisma.comment.findUnique({
+  return await prisma.comment.findUnique({
     where: {
       id: parseInt(id, 10),
     },
   });
-  return comment;
 }
 
 async function getAll() {
-  const comments = await prisma.comment.findMany();
-  return comments;
+  return await prisma.comment.findMany();
 }
 
 async function getList(data) {
@@ -34,12 +32,11 @@ async function update(id, data) {
 }
 
 async function deleteById(id) {
-  const deletedComment = await prisma.comment.delete({
+  return await prisma.comment.delete({
     where: {
       id: parseInt(id, 10),
     },
   });
-  return deletedComment;
 }
 
 function getEntityName() {

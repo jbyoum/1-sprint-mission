@@ -8,15 +8,11 @@ passport.use('access-token', jwtStrategy.accessTokenStrategy);
 passport.use('refresh-token', jwtStrategy.refreshTokenStrategy);
 
 passport.serializeUser((user, done) => {
-  console.log('serializeUser');
-  console.log(user);
   done(null, user.id);
 });
 
 passport.deserializeUser(async (id, done) => {
   try {
-    console.log('deserializeUser');
-    console.log(id);
     const user = await userRepository.findById(id);
     done(null, user);
   } catch (error) {
