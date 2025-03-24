@@ -22,7 +22,11 @@ articlesRouter.post(
   withAsync(createArticle),
 );
 articlesRouter.get('/', withAsync(getArticleList));
-articlesRouter.get('/:id', withAsync(getArticle));
+articlesRouter.get(
+  '/:id',
+  passport.authenticate('refresh-token', { session: false }),
+  withAsync(getArticle),
+);
 articlesRouter.patch(
   '/:id',
   passport.authenticate('access-token', { session: false }),

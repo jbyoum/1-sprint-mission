@@ -24,8 +24,8 @@ async function removeByProduct(userId, productId) {
   return await likeRepository.removeByProduct(userId, productId);
 }
 
-async function getEntityName() {
-  return await likeRepository.getEntityName();
+function getEntityName() {
+  return likeRepository.getEntityName();
 }
 
 export default {

@@ -12,7 +12,6 @@ import likeService from '../services/likeService.js';
 
 export async function createUser(req, res) {
   const data = create(req.body, CreateUserBodyStruct);
-  console.log('createuser');
   const user = await userService.createUser(data);
   return res.status(201).send(user);
 }
@@ -34,7 +33,6 @@ export async function login(req, res) {
 
 export async function refreshToken(req, res) {
   const { refreshToken } = req.cookies;
-  console.log(req.user);
   const { id: userId } = create({ id: req.user.id }, IdParamsStruct);
   const { accessToken, newRefreshToken } = await userService.refreshToken(userId, refreshToken);
   await userService.updateUser(userId, { refreshToken: newRefreshToken });
@@ -48,9 +46,7 @@ export async function refreshToken(req, res) {
 }
 
 export async function getInfo(req, res) {
-  console.log('getinfo');
   const { id: userId } = create({ id: req.user.id }, IdParamsStruct);
-  console.log(userId);
   const user = await userService.getUserById(userId);
   return res.send(user);
 }

@@ -27,7 +27,6 @@ async function getUser(email, password) {
   return filterSensitiveUserData(user);
 }
 
-// 추가 함수
 async function getUserById(id) {
   const user = await userRepository.findById(id);
 

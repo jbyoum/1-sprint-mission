@@ -10,7 +10,6 @@ import { CreateCommentBodyStruct, GetCommentListParamsStruct } from '../structs/
 import articleService from '../services/articleService.js';
 import commentService from '../services/commentService.js';
 import likeService from '../services/likeService.js';
-import passport from '../config/passport.js';
 import AlreadyExstError from '../lib/errors/AlreadyExstError.js';
 
 export async function createArticle(req, res) {
@@ -27,16 +26,14 @@ export async function createArticle(req, res) {
 
 export async function getArticle(req, res) {
   const { id } = create(req.params, IdParamsStruct);
+  const { id: userId } = create({ id: req.user.id }, IdParamsStruct);
   const article = await articleService.getById(id);
   if (!article) {
     throw new NotFoundError(articleService.getEntityName(), id);
   }
 
-  const user = passport.authenticate('access-token', { session: false });
-  if (user) {
-    const like = await likeService.getByArticle(user.id, id);
-    article.isLiked = like ? true : false;
-  }
+  const like = await likeService.getByArticle(userId, id);
+  article.isLiked = like ? true : false;
   return res.send(article);
 }
 

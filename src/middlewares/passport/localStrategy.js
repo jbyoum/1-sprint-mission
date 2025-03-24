@@ -1,13 +1,12 @@
-import { Strategy as LocalStrategy } from "passport-local";
-import userService from "../../services/userService.js";
+import { Strategy as LocalStrategy } from 'passport-local';
+import userService from '../../services/userService.js';
 
 const localStrategy = new LocalStrategy(
   {
-    usernameField: "email",
+    usernameField: 'email',
   },
   async (email, password, done) => {
     try {
-      console.log("verify local strategy");
       const user = await userService.getUser(email, password);
       if (!user) {
         return done(null, false);
@@ -16,7 +15,7 @@ const localStrategy = new LocalStrategy(
     } catch (error) {
       return done(error);
     }
-  }
+  },
 );
 
 export default localStrategy;

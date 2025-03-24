@@ -21,10 +21,6 @@ app.use(passport.initialize());
 
 app.use(STATIC_PATH, express.static(path.resolve(process.cwd(), UPLOAD_FOLDER)));
 
-app.use((req, res, next) => {
-  console.log('Incoming Request Headers:', req.headers);
-  next();
-});
 app.use('/users', usersRouter);
 app.use('/articles', articlesRouter);
 app.use('/products', productsRouter);
