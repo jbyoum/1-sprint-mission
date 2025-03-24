@@ -22,8 +22,8 @@ export function globalErrorHandler(err, req, res, next) {
     (err instanceof SyntaxError && err.status === 400 && 'body' in err) ||
     err instanceof Prisma.PrismaClientValidationError
   ) {
-    return res.status(400).send({ message: err.message });
-  } //'Invalid JSON'
+    return res.status(400).send({ message: 'Invalid JSON' });
+  }
 
   /** From imageController */
   if (err instanceof FileExtError) {

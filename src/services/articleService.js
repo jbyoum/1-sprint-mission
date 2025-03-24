@@ -24,8 +24,8 @@ async function count(where) {
   return await articleRepository.count(where);
 }
 
-async function getEntityName() {
-  return await articleRepository.getEntityName();
+function getEntityName() {
+  return articleRepository.getEntityName();
 }
 
 export default {
