@@ -3,8 +3,9 @@ import ForbiddenError from '../lib/errors/ForbiddenError.js';
 import articleService from '../services/articleService.js';
 import { IdParamsStruct } from '../structs/commonStructs.js';
 import { create } from 'superstruct';
+import { NextFunction, Response } from 'express';
 
-async function verifyAricleOwner(req, res, next) {
+async function verifyAricleOwner(req: RequestAuthed, res: Response, next: NextFunction) {
   const { id: userId } = create({ id: req.user.id }, IdParamsStruct);
   try {
     const { id: articleId } = create(req.params, IdParamsStruct);

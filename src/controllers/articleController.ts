@@ -12,8 +12,10 @@ import commentService from '../services/commentService.js';
 import likeService from '../services/likeService.js';
 import passport from '../config/passport.js';
 import AlreadyExstError from '../lib/errors/AlreadyExstError.js';
+import { Request, Response } from 'express';
+import { User } from '@prisma/client';
 
-export async function createArticle(req, res) {
+export async function createArticle(req: RequestAuthed, res: Response) {
   const data = create(req.body, CreateArticleBodyStruct);
   const { id: userId } = create({ id: req.user.id }, IdParamsStruct);
 
@@ -25,19 +27,22 @@ export async function createArticle(req, res) {
   return res.status(201).send(article);
 }
 
-export async function getArticle(req, res) {
+export async function getArticle(req: Request, res: Response) {
   const { id } = create(req.params, IdParamsStruct);
   const article = await articleService.getById(id);
   if (!article) {
     throw new NotFoundError(articleService.getEntityName(), id);
   }
 
-  const user = passport.authenticate('access-token', { session: false });
-  if (user) {
-    const like = await likeService.getByArticle(user.id, id);
-    article.isLiked = like ? true : false;
-  }
-  return res.send(article);
+  passport.authenticate('access-token', { session: false }, async (err: Error, user: User, info) => {
+
+      if (user) {
+        const like = await likeService.getByArticle(user.id, id);
+        return res.send({ ...article, isLiked: !!like });
+      } else {
+        return res.send(article);
+      }
+  })(req, res);
 }
 
 export async function updateArticle(req, res) {
