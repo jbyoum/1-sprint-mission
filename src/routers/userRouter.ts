@@ -25,12 +25,12 @@ usersRouter.get(
   passport.authenticate('access-token', { session: false }),
   withAsync(getInfo),
 );
-usersRouter.post(
-  '/edit',
+usersRouter.patch(
+  '/info',
   passport.authenticate('access-token', { session: false }),
   withAsync(editInfo),
 );
-usersRouter.post(
+usersRouter.patch(
   '/password',
   passport.authenticate('access-token', { session: false }),
   withAsync(editPassword),
