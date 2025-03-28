@@ -1,9 +1,9 @@
 import { StructError } from 'superstruct';
-import NotFoundError from '../lib/errors/NotFoundError.js';
-import AlreadyExstError from '../lib/errors/AlreadyExstError.js';
-import UnauthError from '../lib/errors/UnauthError.js';
-import ForbiddenError from '../lib/errors/ForbiddenError.js';
-import FileExtError from '../lib/errors/FileExtError.js';
+import NotFoundError from '../lib/errors/NotFoundError';
+import AlreadyExstError from '../lib/errors/AlreadyExstError';
+import UnauthError from '../lib/errors/UnauthError';
+import ForbiddenError from '../lib/errors/ForbiddenError';
+import FileExtError from '../lib/errors/FileExtError';
 import multer from 'multer';
 import { Prisma } from '@prisma/client';
 

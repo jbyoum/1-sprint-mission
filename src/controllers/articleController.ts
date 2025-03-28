@@ -1,19 +1,17 @@
 import { create } from 'superstruct';
-import NotFoundError from '../lib/errors/NotFoundError.js';
-import { IdParamsStruct } from '../structs/commonStructs.js';
+import NotFoundError from '../lib/errors/NotFoundError';
+import { IdParamsStruct } from '../structs/commonStructs';
 import {
   CreateArticleBodyStruct,
   UpdateArticleBodyStruct,
   GetArticleListParamsStruct,
-} from '../structs/articleStructs.js';
-import { CreateCommentBodyStruct, GetCommentListParamsStruct } from '../structs/commentStruct.js';
-import articleService from '../services/articleService.js';
-import commentService from '../services/commentService.js';
-import likeService from '../services/likeService.js';
-import passport from '../config/passport.js';
-import AlreadyExstError from '../lib/errors/AlreadyExstError.js';
+} from '../structs/articleStructs';
+import { CreateCommentBodyStruct, GetCommentListParamsStruct } from '../structs/commentStruct';
+import articleService from '../services/articleService';
+import commentService from '../services/commentService';
+import likeService from '../services/likeService';
+import AlreadyExstError from '../lib/errors/AlreadyExstError';
 import { Request, Response } from 'express';
-import { User } from '@prisma/client';
 
 export async function createArticle(req: RequestAuthed, res: Response) {
   const data = create(req.body, CreateArticleBodyStruct);
@@ -27,25 +25,18 @@ export async function createArticle(req: RequestAuthed, res: Response) {
   return res.status(201).send(article);
 }
 
-export async function getArticle(req: Request, res: Response) {
+export async function getArticle(req: RequestAuthed, res: Response) {
   const { id } = create(req.params, IdParamsStruct);
+  const { id: userId } = create({ id: req.user.id }, IdParamsStruct);
   const article = await articleService.getById(id);
   if (!article) {
     throw new NotFoundError(articleService.getEntityName(), id);
   }
-
-  passport.authenticate('access-token', { session: false }, async (err: Error, user: User, info) => {
-
-      if (user) {
-        const like = await likeService.getByArticle(user.id, id);
-        return res.send({ ...article, isLiked: !!like });
-      } else {
-        return res.send(article);
-      }
-  })(req, res);
+  const like = await likeService.getByArticle(userId, id);
+  return res.send({ ...article, isLiked: !!like });
 }
 
-export async function updateArticle(req, res) {
+export async function updateArticle(req: RequestAuthed, res: Response) {
   const { id } = create(req.params, IdParamsStruct);
   const data = create(req.body, UpdateArticleBodyStruct);
 
@@ -53,14 +44,14 @@ export async function updateArticle(req, res) {
   return res.send(article);
 }
 
-export async function deleteArticle(req, res) {
+export async function deleteArticle(req: RequestAuthed, res: Response) {
   const { id } = create(req.params, IdParamsStruct);
 
   await articleService.remove(id);
   return res.status(204).send();
 }
 
-export async function getArticleList(req, res) {
+export async function getArticleList(req: Request, res: Response) {
   const { page, pageSize, orderBy, keyword } = create(req.query, GetArticleListParamsStruct);
   const search = {
     where: {
@@ -85,7 +76,7 @@ export async function getArticleList(req, res) {
   return res.send(response);
 }
 
-export async function createComment(req, res) {
+export async function createComment(req: RequestAuthed, res: Response) {
   const { id: articleId } = create(req.params, IdParamsStruct);
   const { content } = create(req.body, CreateCommentBodyStruct);
   const { id: userId } = create({ id: req.user.id }, IdParamsStruct);
@@ -99,7 +90,7 @@ export async function createComment(req, res) {
   return res.status(201).send(comment);
 }
 
-export async function getCommentList(req, res) {
+export async function getCommentList(req: Request, res: Response) {
   const { id: articleId } = create(req.params, IdParamsStruct);
   const { cursor, limit } = create(req.query, GetCommentListParamsStruct);
 
@@ -125,7 +116,7 @@ export async function getCommentList(req, res) {
   });
 }
 
-export async function likeArticle(req, res) {
+export async function likeArticle(req: RequestAuthed, res: Response) {
   const { id: articleId } = create(req.params, IdParamsStruct);
   const { id: userId } = create({ id: req.user.id }, IdParamsStruct);
 
@@ -141,7 +132,7 @@ export async function likeArticle(req, res) {
   return res.send(like);
 }
 
-export async function dislikeArticle(req, res) {
+export async function dislikeArticle(req: RequestAuthed, res: Response) {
   const { id: articleId } = create(req.params, IdParamsStruct);
   const { id: userId } = create({ id: req.user.id }, IdParamsStruct);
 

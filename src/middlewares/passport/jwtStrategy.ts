@@ -17,7 +17,7 @@ async function jwtVerify(payload, done) {
     if (!user) {
       return done(null, false);
     }
-    return done(null, user, info);
+    return done(null, user);
   } catch (error) {
     return done(error);
   }
