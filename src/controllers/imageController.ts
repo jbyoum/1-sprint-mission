@@ -1,9 +1,11 @@
-import { UPLOAD_FOLDER } from '../config/constants.js';
+import { UPLOAD_FOLDER } from '../config/constants';
 import multer from 'multer';
 import path from 'path';
 import { fileTypeFromFile } from 'file-type';
 import fs from 'fs';
-import FileExtError from '../lib/errors/FileExtError.js';
+import FileExtError from '../lib/errors/FileExtError';
+import { Request, Response } from 'express';
+import EmptyUploadError from '../lib/errors/EmptyUploadError';
 
 const __dirname = path.resolve();
 const FILE_SIZE_LIMIT = 5 * 1024 * 1024;
@@ -41,7 +43,10 @@ export const upload = multer({
   limits: { fieldNameSize: 100, fileSize: FILE_SIZE_LIMIT },
 });
 
-export async function uploadImage(req, res) {
+export async function uploadImage(req: Request, res: Response) {
+  if (!req.file) {
+    throw new EmptyUploadError();
+  }
   const filePath = `${__dirname}/${UPLOAD_FOLDER}/${req.file.filename}`;
   const mimeType = await fileTypeFromFile(filePath);
   const ext = mimeType ? mimeType['ext'] : null;
