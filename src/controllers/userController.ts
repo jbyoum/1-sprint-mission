@@ -1,22 +1,23 @@
 import { create } from 'superstruct';
-import userService from '../services/userService.js';
-import productService from '../services/productService.js';
-import { IdParamsStruct } from '../structs/commonStructs.js';
+import userService from '../services/userService';
+import productService from '../services/productService';
+import { IdParamsStruct } from '../structs/commonStructs';
 import {
   CreatePasswordStruct,
   CreateUserBodyStruct,
   GetListParamsStruct,
   UpdateUserBodyStruct,
-} from '../structs/userStructs.js';
-import likeService from '../services/likeService.js';
+} from '../structs/userStructs';
+import likeService from '../services/likeService';
+import { Request, Response } from 'express';
 
-export async function createUser(req, res) {
+export async function createUser(req: Request, res: Response) {
   const data = create(req.body, CreateUserBodyStruct);
   const user = await userService.createUser(data);
   return res.status(201).send(user);
 }
 
-export async function login(req, res) {
+export async function login(req: RequestWithUser, res: Response) {
   const user = req.user;
   const accessToken = userService.createToken(user);
   const refreshToken = userService.createToken(user, 'refresh');
@@ -31,7 +32,7 @@ export async function login(req, res) {
   return res.json({ accessToken });
 }
 
-export async function refreshToken(req, res) {
+export async function refreshToken(req: RequestWithUser, res: Response) {
   const { refreshToken } = req.cookies;
   const { id: userId } = create({ id: req.user.id }, IdParamsStruct);
   const { accessToken, newRefreshToken } = await userService.refreshToken(userId, refreshToken);
@@ -45,27 +46,27 @@ export async function refreshToken(req, res) {
   return res.json({ accessToken });
 }
 
-export async function getInfo(req, res) {
+export async function getInfo(req: RequestWithUser, res: Response) {
   const { id: userId } = create({ id: req.user.id }, IdParamsStruct);
   const user = await userService.getUserById(userId);
   return res.send(user);
 }
 
-export async function editInfo(req, res) {
+export async function editInfo(req: RequestWithUser, res: Response) {
   const { id: userId } = create({ id: req.user.id }, IdParamsStruct);
   const data = create(req.body, UpdateUserBodyStruct);
   const user = await userService.updateUser(userId, data);
   return res.status(201).send(user);
 }
 
-export async function editPassword(req, res) {
+export async function editPassword(req: RequestWithUser, res: Response) {
   const { id: userId } = create({ id: req.user.id }, IdParamsStruct);
   const { password: password } = create(req.body, CreatePasswordStruct);
   const user = await userService.updatePassword(userId, password);
   return res.status(201).send(user);
 }
 
-export async function getOwnProducts(req, res) {
+export async function getOwnProducts(req: RequestWithUser, res: Response) {
   const { page, pageSize, orderBy } = create(req.query, GetListParamsStruct);
   const { id: userId } = create({ id: req.user.id }, IdParamsStruct);
 
@@ -81,7 +82,7 @@ export async function getOwnProducts(req, res) {
   return res.send(products);
 }
 
-export async function getLikedProducts(req, res) {
+export async function getLikedProducts(req: RequestWithUser, res: Response) {
   const { page, pageSize, orderBy } = create(req.query, GetListParamsStruct);
   const { id: userId } = create({ id: req.user.id }, IdParamsStruct);
 

@@ -10,7 +10,7 @@ import { Prisma } from '@prisma/client';
 import { NextFunction, Request, Response } from 'express';
 
 export function defaultNotFoundHandler(
-  req: Request | RequestAuthed,
+  req: Request | RequestWithUser,
   res: Response,
   next: NextFunction,
 ) {
@@ -19,7 +19,7 @@ export function defaultNotFoundHandler(
 
 export function globalErrorHandler(
   err: unknown,
-  req: Request | RequestAuthed,
+  req: Request | RequestWithUser,
   res: Response,
   next: NextFunction,
 ) {

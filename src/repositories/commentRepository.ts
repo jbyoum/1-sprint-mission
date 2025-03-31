@@ -1,15 +1,16 @@
+import { Prisma } from '@prisma/client';
 import prisma from '../config/prismaClient.js';
 
-async function create(comment) {
+async function create(comment: Prisma.CommentUncheckedCreateInput) {
   return await prisma.comment.create({
     data: comment,
   });
 }
 
-async function getById(id) {
+async function getById(id: number) {
   return await prisma.comment.findUnique({
     where: {
-      id: parseInt(id, 10),
+      id: id,
     },
   });
 }
@@ -18,23 +19,23 @@ async function getAll() {
   return await prisma.comment.findMany();
 }
 
-async function getList(data) {
+async function getList(data: Prisma.CommentFindManyArgs) {
   return await prisma.comment.findMany(data);
 }
 
-async function update(id, data) {
+async function update(id: number, data: Prisma.CommentUncheckedUpdateInput) {
   return await prisma.comment.update({
     where: {
-      id: parseInt(id, 10),
+      id: id,
     },
     data: data,
   });
 }
 
-async function deleteById(id) {
+async function deleteById(id: number) {
   return await prisma.comment.delete({
     where: {
-      id: parseInt(id, 10),
+      id: id,
     },
   });
 }

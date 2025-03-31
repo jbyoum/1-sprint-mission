@@ -1,6 +1,7 @@
-import prisma from '../config/prismaClient.js';
+import { User } from '@prisma/client';
+import prisma from '../config/prismaClient';
 
-async function findById(id) {
+async function findById(id: number) {
   return await prisma.user.findUnique({
     where: {
       id,
@@ -8,21 +9,21 @@ async function findById(id) {
   });
 }
 
-async function findByEmail(email) {
-  return await prisma.User.findUnique({
+async function findByEmail(email: string) {
+  return await prisma.user.findUnique({
     where: {
       email,
     },
   });
 }
 
-async function create(user) {
+async function create(user: User) {
   return await prisma.user.create({
     data: user,
   });
 }
 
-async function update(id, data) {
+async function update(id: number, data: Partial<User>) {
   return await prisma.user.update({
     where: {
       id,

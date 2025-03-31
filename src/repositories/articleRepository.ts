@@ -1,24 +1,25 @@
-import prisma from '../config/prismaClient.js';
+import { Prisma } from '@prisma/client';
+import prisma from '../config/prismaClient';
 
-async function getById(id) {
+async function getById(id: number) {
   return await prisma.article.findUnique({
     where: {
-      id: parseInt(id, 10),
+      id: id,
     },
   });
 }
 
-async function getList(where) {
+async function getList(where: Prisma.ArticleFindManyArgs) {
   return await prisma.article.findMany(where);
 }
 
-async function create(article) {
+async function create(article: Prisma.ArticleUncheckedCreateInput) {
   return await prisma.article.create({
     data: article,
   });
 }
 
-async function update(id, data) {
+async function update(id: number, data: Prisma.ArticleUncheckedUpdateInput) {
   return await prisma.article.update({
     where: {
       id,
@@ -27,15 +28,15 @@ async function update(id, data) {
   });
 }
 
-async function remove(id) {
+async function remove(id: number) {
   return await prisma.article.delete({
     where: {
-      id: parseInt(id, 10),
+      id: id,
     },
   });
 }
 
-async function count(where) {
+async function count(where: Prisma.ArticleCountArgs) {
   return await prisma.article.count(where);
 }
 

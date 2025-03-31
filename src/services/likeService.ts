@@ -1,26 +1,27 @@
+import { Prisma } from '@prisma/client';
 import likeRepository from '../repositories/likeRepository.js';
 
-async function getByArticle(userId, articleId) {
+async function getByArticle(userId: number, articleId: number) {
   return await likeRepository.findByArticle(userId, articleId);
 }
 
-async function getByProduct(userId, productId) {
+async function getByProduct(userId: number, productId: number) {
   return await likeRepository.findByProduct(userId, productId);
 }
 
-async function getList(where) {
+async function getList(where: Prisma.LikeFindManyArgs) {
   return await likeRepository.getList(where);
 }
 
-async function create(data) {
+async function create(data: Prisma.LikeUncheckedCreateInput) {
   return await likeRepository.create(data);
 }
 
-async function removeByArticle(userId, articleId) {
+async function removeByArticle(userId: number, articleId: number) {
   return await likeRepository.removeByArticle(userId, articleId);
 }
 
-async function removeByProduct(userId, productId) {
+async function removeByProduct(userId: number, productId: number) {
   return await likeRepository.removeByProduct(userId, productId);
 }
 

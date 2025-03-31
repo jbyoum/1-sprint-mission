@@ -1,5 +1,5 @@
 class AlreadyExstError extends Error {
-  constructor(modelName) {
+  constructor(modelName: String) {
     super(`${modelName} already exists`);
     this.name = 'AlreadyExstError';
   }

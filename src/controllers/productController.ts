@@ -1,18 +1,20 @@
 import { create } from 'superstruct';
-import NotFoundError from '../lib/errors/NotFoundError.js';
-import { IdParamsStruct } from '../structs/commonStructs.js';
+import NotFoundError from '../lib/errors/NotFoundError';
+import { IdParamsStruct } from '../structs/commonStructs';
 import {
   CreateProductBodyStruct,
   GetProductListParamsStruct,
   UpdateProductBodyStruct,
 } from '../structs/productStruct.js';
-import { CreateCommentBodyStruct, GetCommentListParamsStruct } from '../structs/commentStruct.js';
-import productService from '../services/productService.js';
-import commentService from '../services/commentService.js';
-import likeService from '../services/likeService.js';
-import passport from '../config/passport.js';
+import { CreateCommentBodyStruct, GetCommentListParamsStruct } from '../structs/commentStruct';
+import productService from '../services/productService';
+import commentService from '../services/commentService';
+import likeService from '../services/likeService';
+import passport from '../config/passport';
+import { Request, Response } from 'express';
+import AlreadyExstError from '../lib/errors/AlreadyExstError';
 
-export async function createProduct(req, res) {
+export async function createProduct(req: RequestWithUser, res: Response) {
   const data = create(req.body, CreateProductBodyStruct);
   const { id: userId } = create({ id: req.user.id }, IdParamsStruct);
 
@@ -41,7 +43,7 @@ export async function getProduct(req, res) {
   return res.send(product);
 }
 
-export async function updateProduct(req, res) {
+export async function updateProduct(req: RequestWithUser, res: Response) {
   const { id } = create(req.params, IdParamsStruct);
   const data = create(req.body, UpdateProductBodyStruct);
 
@@ -50,14 +52,14 @@ export async function updateProduct(req, res) {
   return res.send(updatedProduct);
 }
 
-export async function deleteProduct(req, res) {
+export async function deleteProduct(req: RequestWithUser, res: Response) {
   const { id } = create(req.params, IdParamsStruct);
-  await productService.delete(id);
+  await productService.remove(id);
 
   return res.status(204).send();
 }
 
-export async function getProductList(req, res) {
+export async function getProductList(req: Request, res: Response) {
   const { page, pageSize, orderBy, keyword } = create(req.query, GetProductListParamsStruct);
 
   const search = {
@@ -69,12 +71,12 @@ export async function getProductList(req, res) {
     },
   };
 
-  const totalCount = await productService.count({ ...(keyword && search) });
+  const totalCount = await productService.count({ where: keyword ? search.where : {} });
   const products = await productService.getList({
     skip: (page - 1) * pageSize,
     take: pageSize,
     orderBy: orderBy === 'recent' ? { id: 'desc' } : { id: 'asc' },
-    ...(keyword && search),
+    where: keyword ? search.where : {},
   });
 
   return res.send({
@@ -83,7 +85,7 @@ export async function getProductList(req, res) {
   });
 }
 
-export async function createComment(req, res) {
+export async function createComment(req: RequestWithUser, res: Response) {
   const { id: productId } = create(req.params, IdParamsStruct);
   const { content } = create(req.body, CreateCommentBodyStruct);
   const { id: userId } = create({ id: req.user.id }, IdParamsStruct);
@@ -97,7 +99,7 @@ export async function createComment(req, res) {
   return res.status(201).send(comment);
 }
 
-export async function getCommentList(req, res) {
+export async function getCommentList(req: Request, res: Response) {
   const { id: productId } = create(req.params, IdParamsStruct);
   const { cursor, limit } = create(req.query, GetCommentListParamsStruct);
 
@@ -121,7 +123,7 @@ export async function getCommentList(req, res) {
   });
 }
 
-export async function likeProduct(req, res) {
+export async function likeProduct(req: RequestWithUser, res: Response) {
   const { id: productId } = create(req.params, IdParamsStruct);
   const { id: userId } = create({ id: req.user.id }, IdParamsStruct);
 
@@ -137,7 +139,7 @@ export async function likeProduct(req, res) {
   return res.send(like);
 }
 
-export async function dislikeProduct(req, res) {
+export async function dislikeProduct(req: RequestWithUser, res: Response) {
   const { id: productId } = create(req.params, IdParamsStruct);
   const { id: userId } = create({ id: req.user.id }, IdParamsStruct);
 

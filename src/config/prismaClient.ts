@@ -4,7 +4,7 @@ const prisma = new PrismaClient().$extends({
     $allModels: {
       getEntityName() {
         const context = Prisma.getExtensionContext(this);
-        return context.$name;
+        return context?.$name || '(Table Name)';
       },
     },
   },

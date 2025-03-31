@@ -1,10 +1,11 @@
+import { Prisma } from '@prisma/client';
 import commentRepository from '../repositories/commentRepository.js';
 
-async function create(comment) {
+async function create(comment: Prisma.CommentUncheckedCreateInput) {
   return commentRepository.create(comment);
 }
 
-async function getById(id) {
+async function getById(id: number) {
   return commentRepository.getById(id);
 }
 
@@ -12,15 +13,15 @@ async function getAll() {
   return commentRepository.getAll();
 }
 
-async function getList(data) {
+async function getList(data: Prisma.CommentFindManyArgs) {
   return commentRepository.getList(data);
 }
 
-async function update(id, comment) {
+async function update(id: number, comment: Prisma.CommentUncheckedUpdateInput) {
   return commentRepository.update(id, comment);
 }
 
-async function deleteById(id) {
+async function deleteById(id: number) {
   return commentRepository.deleteById(id);
 }
 

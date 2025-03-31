@@ -24,7 +24,10 @@ articlesRouter.post(
 articlesRouter.get('/', withAsync(getArticleList));
 articlesRouter.get(
   '/:id',
-  passport.authenticate('access-token', { session: false }),
+  passport.authenticate('access-token', { session: false, failureRedirect: false }),
+  (_req, _res, next) => {
+    next();
+  },
   withAsync(getArticle),
 );
 articlesRouter.patch(
