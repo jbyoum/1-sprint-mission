@@ -12,11 +12,12 @@ import commentService from '../services/commentService';
 import likeService from '../services/likeService';
 import AlreadyExstError from '../lib/errors/AlreadyExstError';
 import { Request, Response } from 'express';
-import { Prisma } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 
-export async function createArticle(req: RequestWithUser, res: Response) {
+export async function createArticle(req: Request, res: Response) {
+  const reqUser = req.user as User;
   const data = create(req.body, CreateArticleBodyStruct);
-  const { id: userId } = create({ id: req.user.id }, IdParamsStruct);
+  const { id: userId } = create({ id: reqUser.id }, IdParamsStruct);
 
   const article = await articleService.create({
     ...data,
