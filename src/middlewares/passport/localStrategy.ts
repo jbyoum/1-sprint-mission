@@ -1,5 +1,6 @@
 import { Strategy as LocalStrategy } from 'passport-local';
 import userService from '../../services/userService';
+import { User } from '@prisma/client';
 
 const localStrategy = new LocalStrategy(
   {
@@ -11,7 +12,7 @@ const localStrategy = new LocalStrategy(
       if (!user) {
         return done(null, false);
       } else {
-        return done(null, user);
+        return done(null, user as User);
       }
     } catch (error) {
       return done(error);

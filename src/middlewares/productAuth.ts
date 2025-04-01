@@ -1,11 +1,13 @@
-import NotFoundError from '../lib/errors/NotFoundError.js';
-import ForbiddenError from '../lib/errors/ForbiddenError.js';
-import productService from '../services/productService.js';
-import { IdParamsStruct } from '../structs/commonStructs.js';
+import NotFoundError from '../lib/errors/NotFoundError';
+import ForbiddenError from '../lib/errors/ForbiddenError';
+import productService from '../services/productService';
+import { IdParamsStruct } from '../structs/commonStructs';
 import { create } from 'superstruct';
+import { NextFunction, Request, Response } from 'express';
 
-async function verifyProductOwner(req, res, next) {
-  const { id: userId } = create({ id: req.user.id }, IdParamsStruct);
+async function verifyProductOwner(req: Request, res: Response, next: NextFunction) {
+  const reqUser = req.user as UserWithId;
+  const { id: userId } = create({ id: reqUser.id }, IdParamsStruct);
   try {
     const { id: productId } = create(req.params, IdParamsStruct);
 

@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client';
-import prisma from '../config/prismaClient.js';
+import prisma from '../config/prismaClient';
 
 async function findByArticle(userId: number, articleId: number) {
   return (

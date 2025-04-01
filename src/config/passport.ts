@@ -2,10 +2,11 @@ import passport from 'passport';
 import localStrategy from '../middlewares/passport/localStrategy';
 import jwtStrategy from '../middlewares/passport/jwtStrategy';
 import userRepository from '../repositories/userRepository';
+import { ACCESS_TOKEN_STRING, LOCAL_STRING, REFRESH_TOKEN_STRING } from './constants';
 
-passport.use('local', localStrategy);
-passport.use('access-token', jwtStrategy.accessTokenStrategy);
-passport.use('refresh-token', jwtStrategy.refreshTokenStrategy);
+passport.use(LOCAL_STRING, localStrategy);
+passport.use(ACCESS_TOKEN_STRING, jwtStrategy.accessTokenStrategy);
+passport.use(REFRESH_TOKEN_STRING, jwtStrategy.refreshTokenStrategy);
 
 passport.serializeUser((user, done) => {
   done(null, user.id);

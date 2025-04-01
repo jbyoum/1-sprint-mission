@@ -1,12 +1,13 @@
-import NotFoundError from '../lib/errors/NotFoundError.js';
-import ForbiddenError from '../lib/errors/ForbiddenError.js';
-import articleService from '../services/articleService.js';
-import { IdParamsStruct } from '../structs/commonStructs.js';
+import NotFoundError from '../lib/errors/NotFoundError';
+import ForbiddenError from '../lib/errors/ForbiddenError';
+import articleService from '../services/articleService';
+import { IdParamsStruct } from '../structs/commonStructs';
 import { create } from 'superstruct';
-import { NextFunction, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 
-async function verifyAricleOwner(req: RequestWithUser, res: Response, next: NextFunction) {
-  const { id: userId } = create({ id: req.user.id }, IdParamsStruct);
+async function verifyAricleOwner(req: Request, res: Response, next: NextFunction) {
+  const reqUser = req.user as UserWithId;
+  const { id: userId } = create({ id: reqUser.id }, IdParamsStruct);
   try {
     const { id: articleId } = create(req.params, IdParamsStruct);
 

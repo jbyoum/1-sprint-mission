@@ -1,11 +1,13 @@
-import NotFoundError from '../lib/errors/NotFoundError.js';
-import ForbiddenError from '../lib/errors/ForbiddenError.js';
-import commentService from '../services/commentService.js';
-import { IdParamsStruct } from '../structs/commonStructs.js';
+import NotFoundError from '../lib/errors/NotFoundError';
+import ForbiddenError from '../lib/errors/ForbiddenError';
+import commentService from '../services/commentService';
+import { IdParamsStruct } from '../structs/commonStructs';
 import { create } from 'superstruct';
+import { NextFunction, Request, Response } from 'express';
 
-async function verifyCommentOwner(req, res, next) {
-  const { id: userId } = create({ id: req.user.id }, IdParamsStruct);
+async function verifyCommentOwner(req: Request, res: Response, next: NextFunction) {
+  const reqUser = req.user as UserWithId;
+  const { id: userId } = create({ id: reqUser.id }, IdParamsStruct);
   try {
     const { id: commentId } = create(req.params, IdParamsStruct);
 

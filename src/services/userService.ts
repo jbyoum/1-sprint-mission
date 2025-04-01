@@ -1,16 +1,21 @@
 import jwt, { SignOptions } from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import { JWT_SECRET } from '../config/constants';
+import {
+  JWT_SECRET,
+  PERIOD_ACCESS_TOKEN,
+  PERIOD_REFRESH_TOKEN,
+  REFRESH_STRING,
+} from '../config/constants';
 import userRepository from '../repositories/userRepository';
 import NotFoundError from '../lib/errors/NotFoundError';
 import UnauthError from '../lib/errors/UnauthError';
-import { User } from '@prisma/client';
+import { User, Prisma } from '@prisma/client';
 
 async function hashingPassword(password: string) {
   return await bcrypt.hash(password, 10);
 }
 
-async function createUser(user: User) {
+async function createUser(user: Prisma.UserUncheckedCreateInput) {
   const hashedPassword = await hashingPassword(user.password);
   const createdUser = await userRepository.create({
     ...user,
@@ -38,7 +43,7 @@ async function getUserById(id: number) {
   return filterSensitiveUserData(user);
 }
 
-async function updateUser(id: number, data: Partial<User>) {
+async function updateUser(id: number, data: Prisma.UserUncheckedUpdateInput) {
   const updatedUser = await userRepository.update(id, data);
   return filterSensitiveUserData(updatedUser);
 }
@@ -55,7 +60,7 @@ async function refreshToken(userId: number, refreshToken: string) {
     throw new UnauthError();
   }
   const accessToken = createToken(user);
-  const newRefreshToken = createToken(user, 'refresh');
+  const newRefreshToken = createToken(user, REFRESH_STRING);
   return { accessToken, newRefreshToken };
 }
 
@@ -71,10 +76,10 @@ function filterSensitiveUserData(user: Partial<User> = {}) {
   return rest;
 }
 
-function createToken(user: User, type?: String) {
-  const payload = { userId: user.id };
+function createToken(userWithId: UserWithId, type?: String) {
+  const payload = { userId: userWithId.id };
   const options: SignOptions = {
-    expiresIn: type === 'refresh' ? '2d' : '6h',
+    expiresIn: type === REFRESH_STRING ? PERIOD_REFRESH_TOKEN : PERIOD_ACCESS_TOKEN,
   };
   const token = jwt.sign(payload, JWT_SECRET, options);
   return token;

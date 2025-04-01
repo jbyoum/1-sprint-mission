@@ -1,5 +1,5 @@
 import express from 'express';
-import { withAsync } from '../lib/withAsync.js';
+import { withAsync } from '../lib/withAsync';
 import {
   createArticle,
   getArticleList,
@@ -10,52 +10,47 @@ import {
   getCommentList,
   dislikeArticle,
   likeArticle,
-} from '../controllers/articleController.js';
-import passport from '../config/passport.js';
-import articleAuth from '../middlewares/articleAuth.js';
+} from '../controllers/articleController';
+import passport from '../config/passport';
+import articleAuth from '../middlewares/articleAuth';
+import { authenticatePartial } from '../config/passportPartial';
+import { ACCESS_TOKEN_STRING } from '../config/constants';
 
 const articlesRouter = express.Router();
 
 articlesRouter.post(
   '/',
-  passport.authenticate('access-token', { session: false }),
+  passport.authenticate(ACCESS_TOKEN_STRING, { session: false }),
   withAsync(createArticle),
 );
 articlesRouter.get('/', withAsync(getArticleList));
-articlesRouter.get(
-  '/:id',
-  passport.authenticate('access-token', { session: false, failureRedirect: false }),
-  (_req, _res, next) => {
-    next();
-  },
-  withAsync(getArticle),
-);
+articlesRouter.get('/:id', authenticatePartial(ACCESS_TOKEN_STRING), withAsync(getArticle));
 articlesRouter.patch(
   '/:id',
-  passport.authenticate('access-token', { session: false }),
+  passport.authenticate(ACCESS_TOKEN_STRING, { session: false }),
   articleAuth.verifyAricleOwner,
   withAsync(updateArticle),
 );
 articlesRouter.delete(
   '/:id',
-  passport.authenticate('access-token', { session: false }),
+  passport.authenticate(ACCESS_TOKEN_STRING, { session: false }),
   articleAuth.verifyAricleOwner,
   withAsync(deleteArticle),
 );
 articlesRouter.post(
   '/:id/comments',
-  passport.authenticate('access-token', { session: false }),
+  passport.authenticate(ACCESS_TOKEN_STRING, { session: false }),
   withAsync(createComment),
 );
 articlesRouter.get('/:id/comments', withAsync(getCommentList));
 articlesRouter.get(
   '/:id/like',
-  passport.authenticate('access-token', { session: false }),
+  passport.authenticate(ACCESS_TOKEN_STRING, { session: false }),
   withAsync(likeArticle),
 );
 articlesRouter.get(
   '/:id/dislike',
-  passport.authenticate('access-token', { session: false }),
+  passport.authenticate(ACCESS_TOKEN_STRING, { session: false }),
   withAsync(dislikeArticle),
 );
 export default articlesRouter;

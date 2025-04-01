@@ -1,6 +1,6 @@
 import { Strategy as JwtStrategy, ExtractJwt, VerifiedCallback } from 'passport-jwt';
-import { JWT_SECRET } from '../../config/constants.js';
-import userService from '../../services/userService.js';
+import { JWT_SECRET } from '../../config/constants';
+import userService from '../../services/userService';
 import { Request } from 'express';
 
 interface JwtPayload {

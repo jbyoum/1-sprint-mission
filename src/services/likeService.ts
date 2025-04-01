@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client';
-import likeRepository from '../repositories/likeRepository.js';
+import likeRepository from '../repositories/likeRepository';
 
 async function getByArticle(userId: number, articleId: number) {
   return await likeRepository.findByArticle(userId, articleId);

@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client';
-import productRepository from '../repositories/productRepository.js';
+import productRepository from '../repositories/productRepository';
 
 async function getById(id: number) {
   return await productRepository.getById(id);

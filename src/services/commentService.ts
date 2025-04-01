@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client';
-import commentRepository from '../repositories/commentRepository.js';
+import commentRepository from '../repositories/commentRepository';
 
 async function create(comment: Prisma.CommentUncheckedCreateInput) {
   return commentRepository.create(comment);

@@ -1,5 +1,5 @@
 import { nonempty, optional, object, partial, string, pattern } from 'superstruct';
-import { PageParamsStruct } from './commonStructs.js';
+import { PageParamsStruct } from './commonStructs';
 
 const emailPattern = pattern(
   string(),

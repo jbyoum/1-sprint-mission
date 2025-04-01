@@ -14,14 +14,14 @@ import { Request, Response } from 'express';
 export async function createUser(req: Request, res: Response) {
   const data = create(req.body, CreateUserBodyStruct);
   const user = await userService.createUser(data);
-  return res.status(201).send(user);
+  res.status(201).send(user);
 }
 
-export async function login(req: RequestWithUser, res: Response) {
-  const user = req.user;
-  const accessToken = userService.createToken(user);
-  const refreshToken = userService.createToken(user, 'refresh');
-  const { id: userId } = create({ id: req.user.id }, IdParamsStruct);
+export async function login(req: Request, res: Response) {
+  const reqUser = req.user as UserWithId;
+  const accessToken = userService.createToken(reqUser);
+  const refreshToken = userService.createToken(reqUser, 'refresh');
+  const { id: userId } = create({ id: reqUser.id }, IdParamsStruct);
   await userService.updateUser(userId, { refreshToken });
   res.cookie('refreshToken', refreshToken, {
     path: '/users/token/refresh',
@@ -29,12 +29,13 @@ export async function login(req: RequestWithUser, res: Response) {
     sameSite: 'none',
     secure: false,
   });
-  return res.json({ accessToken });
+  res.json({ accessToken });
 }
 
-export async function refreshToken(req: RequestWithUser, res: Response) {
+export async function refreshToken(req: Request, res: Response) {
   const { refreshToken } = req.cookies;
-  const { id: userId } = create({ id: req.user.id }, IdParamsStruct);
+  const reqUser = req.user as UserWithId;
+  const { id: userId } = create({ id: reqUser.id }, IdParamsStruct);
   const { accessToken, newRefreshToken } = await userService.refreshToken(userId, refreshToken);
   await userService.updateUser(userId, { refreshToken: newRefreshToken });
   res.cookie('refreshToken', newRefreshToken, {
@@ -43,32 +44,36 @@ export async function refreshToken(req: RequestWithUser, res: Response) {
     sameSite: 'none',
     secure: false,
   });
-  return res.json({ accessToken });
+  res.json({ accessToken });
 }
 
-export async function getInfo(req: RequestWithUser, res: Response) {
-  const { id: userId } = create({ id: req.user.id }, IdParamsStruct);
+export async function getInfo(req: Request, res: Response) {
+  const reqUser = req.user as UserWithId;
+  const { id: userId } = create({ id: reqUser.id }, IdParamsStruct);
   const user = await userService.getUserById(userId);
-  return res.send(user);
+  res.send(user);
 }
 
-export async function editInfo(req: RequestWithUser, res: Response) {
-  const { id: userId } = create({ id: req.user.id }, IdParamsStruct);
+export async function editInfo(req: Request, res: Response) {
+  const reqUser = req.user as UserWithId;
+  const { id: userId } = create({ id: reqUser.id }, IdParamsStruct);
   const data = create(req.body, UpdateUserBodyStruct);
   const user = await userService.updateUser(userId, data);
-  return res.status(201).send(user);
+  res.status(201).send(user);
 }
 
-export async function editPassword(req: RequestWithUser, res: Response) {
-  const { id: userId } = create({ id: req.user.id }, IdParamsStruct);
+export async function editPassword(req: Request, res: Response) {
+  const reqUser = req.user as UserWithId;
+  const { id: userId } = create({ id: reqUser.id }, IdParamsStruct);
   const { password: password } = create(req.body, CreatePasswordStruct);
   const user = await userService.updatePassword(userId, password);
-  return res.status(201).send(user);
+  res.status(201).send(user);
 }
 
-export async function getOwnProducts(req: RequestWithUser, res: Response) {
+export async function getOwnProducts(req: Request, res: Response) {
   const { page, pageSize, orderBy } = create(req.query, GetListParamsStruct);
-  const { id: userId } = create({ id: req.user.id }, IdParamsStruct);
+  const reqUser = req.user as UserWithId;
+  const { id: userId } = create({ id: reqUser.id }, IdParamsStruct);
 
   const products = await productService.getList({
     skip: (page - 1) * pageSize,
@@ -79,12 +84,13 @@ export async function getOwnProducts(req: RequestWithUser, res: Response) {
     },
   });
 
-  return res.send(products);
+  res.send(products);
 }
 
-export async function getLikedProducts(req: RequestWithUser, res: Response) {
+export async function getLikedProducts(req: Request, res: Response) {
   const { page, pageSize, orderBy } = create(req.query, GetListParamsStruct);
-  const { id: userId } = create({ id: req.user.id }, IdParamsStruct);
+  const reqUser = req.user as UserWithId;
+  const { id: userId } = create({ id: reqUser.id }, IdParamsStruct);
 
   const likes = await likeService.getList({
     where: {
@@ -93,7 +99,9 @@ export async function getLikedProducts(req: RequestWithUser, res: Response) {
     },
     select: { productId: true },
   });
-  const likedProductIds = likes.map((like) => like.productId);
+  const likedProductIds = likes
+    .map((like) => like.productId)
+    .filter((element): element is number => element !== null);
   const totalCount = likedProductIds.length;
   const likedProducts = await productService.getList({
     skip: (page - 1) * pageSize,
@@ -106,7 +114,7 @@ export async function getLikedProducts(req: RequestWithUser, res: Response) {
     },
   });
 
-  return res.send({
+  res.send({
     list: likedProducts,
     totalCount,
   });

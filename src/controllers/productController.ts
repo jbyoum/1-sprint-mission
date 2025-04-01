@@ -10,13 +10,14 @@ import { CreateCommentBodyStruct, GetCommentListParamsStruct } from '../structs/
 import productService from '../services/productService';
 import commentService from '../services/commentService';
 import likeService from '../services/likeService';
-import passport from '../config/passport';
 import { Request, Response } from 'express';
 import AlreadyExstError from '../lib/errors/AlreadyExstError';
+import { Prisma } from '@prisma/client';
 
-export async function createProduct(req: RequestWithUser, res: Response) {
+export async function createProduct(req: Request, res: Response) {
   const data = create(req.body, CreateProductBodyStruct);
-  const { id: userId } = create({ id: req.user.id }, IdParamsStruct);
+  const reqUser = req.user as UserWithId;
+  const { id: userId } = create({ id: reqUser.id }, IdParamsStruct);
 
   const product = await productService.create({
     ...data,
@@ -26,7 +27,7 @@ export async function createProduct(req: RequestWithUser, res: Response) {
   res.status(201).send(product);
 }
 
-export async function getProduct(req, res) {
+export async function getProduct(req: Request, res: Response) {
   const { id } = create(req.params, IdParamsStruct);
 
   const product = await productService.getById(id);
@@ -34,29 +35,29 @@ export async function getProduct(req, res) {
     throw new NotFoundError(productService.getEntityName(), id);
   }
 
-  const user = passport.authenticate('access-token', { session: false });
-  if (user) {
-    const like = await likeService.getByProduct(user.id, id);
-    product.isLiked = like ? true : false;
+  if (!req.user) {
+    res.send(product);
+  } else {
+    const { id: userId } = create({ id: req.user.id }, IdParamsStruct);
+    const like = await likeService.getByProduct(userId, id);
+    res.send({ ...product, isLiked: !!like });
   }
-
-  return res.send(product);
 }
 
-export async function updateProduct(req: RequestWithUser, res: Response) {
+export async function updateProduct(req: Request, res: Response) {
   const { id } = create(req.params, IdParamsStruct);
   const data = create(req.body, UpdateProductBodyStruct);
 
   const updatedProduct = await productService.update(id, data);
 
-  return res.send(updatedProduct);
+  res.send(updatedProduct);
 }
 
-export async function deleteProduct(req: RequestWithUser, res: Response) {
+export async function deleteProduct(req: Request, res: Response) {
   const { id } = create(req.params, IdParamsStruct);
   await productService.remove(id);
 
-  return res.status(204).send();
+  res.status(204).send();
 }
 
 export async function getProductList(req: Request, res: Response) {
@@ -65,8 +66,8 @@ export async function getProductList(req: Request, res: Response) {
   const search = {
     where: {
       OR: [
-        { name: { contains: keyword, mode: 'insensitive' } },
-        { description: { contains: keyword, mode: 'insensitive' } },
+        { name: { contains: keyword, mode: Prisma.QueryMode.insensitive } },
+        { description: { contains: keyword, mode: Prisma.QueryMode.insensitive } },
       ],
     },
   };
@@ -79,16 +80,17 @@ export async function getProductList(req: Request, res: Response) {
     where: keyword ? search.where : {},
   });
 
-  return res.send({
+  res.send({
     list: products,
     totalCount,
   });
 }
 
-export async function createComment(req: RequestWithUser, res: Response) {
+export async function createComment(req: Request, res: Response) {
   const { id: productId } = create(req.params, IdParamsStruct);
   const { content } = create(req.body, CreateCommentBodyStruct);
-  const { id: userId } = create({ id: req.user.id }, IdParamsStruct);
+  const reqUser = req.user as UserWithId;
+  const { id: userId } = create({ id: reqUser.id }, IdParamsStruct);
 
   const comment = await commentService.create({
     productId: productId,
@@ -96,7 +98,7 @@ export async function createComment(req: RequestWithUser, res: Response) {
     userId: userId,
   });
 
-  return res.status(201).send(comment);
+  res.status(201).send(comment);
 }
 
 export async function getCommentList(req: Request, res: Response) {
@@ -117,15 +119,16 @@ export async function getCommentList(req: Request, res: Response) {
   const cursorComment = commentsWithCursorComment[comments.length - 1];
   const nextCursor = cursorComment ? cursorComment.id : null;
 
-  return res.send({
+  res.send({
     list: comments,
     nextCursor,
   });
 }
 
-export async function likeProduct(req: RequestWithUser, res: Response) {
+export async function likeProduct(req: Request, res: Response) {
   const { id: productId } = create(req.params, IdParamsStruct);
-  const { id: userId } = create({ id: req.user.id }, IdParamsStruct);
+  const reqUser = req.user as UserWithId;
+  const { id: userId } = create({ id: reqUser.id }, IdParamsStruct);
 
   const existedLike = await likeService.getByProduct(userId, productId);
   if (existedLike) {
@@ -136,12 +139,13 @@ export async function likeProduct(req: RequestWithUser, res: Response) {
     userId: userId,
     productId: productId,
   });
-  return res.send(like);
+  res.send(like);
 }
 
-export async function dislikeProduct(req: RequestWithUser, res: Response) {
+export async function dislikeProduct(req: Request, res: Response) {
   const { id: productId } = create(req.params, IdParamsStruct);
-  const { id: userId } = create({ id: req.user.id }, IdParamsStruct);
+  const reqUser = req.user as UserWithId;
+  const { id: userId } = create({ id: reqUser.id }, IdParamsStruct);
 
   const existedLike = await likeService.getByProduct(userId, productId);
   if (!existedLike) {
@@ -149,5 +153,5 @@ export async function dislikeProduct(req: RequestWithUser, res: Response) {
   }
 
   await likeService.removeByProduct(userId, productId);
-  return res.status(204).send();
+  res.status(204).send();
 }

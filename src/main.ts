@@ -2,14 +2,14 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import cookieParser from 'cookie-parser';
-import passport from './config/passport.js';
-import { PORT, UPLOAD_FOLDER, STATIC_PATH } from './config/constants.js';
-import usersRouter from './routers/userRouter.js';
-import articlesRouter from './routers/articleRouter.js';
-import productsRouter from './routers/productRouter.js';
-import commentsRouter from './routers/commentRouter.js';
-import imagesRouter from './routers/imageRouter.js';
-import { defaultNotFoundHandler, globalErrorHandler } from './controllers/errorController.js';
+import passport from './config/passport';
+import { PORT, UPLOAD_FOLDER, STATIC_PATH } from './config/constants';
+import usersRouter from './routers/userRouter';
+import articlesRouter from './routers/articleRouter';
+import productsRouter from './routers/productRouter';
+import commentsRouter from './routers/commentRouter';
+import imagesRouter from './routers/imageRouter';
+import { defaultNotFoundHandler, globalErrorHandler } from './controllers/errorController';
 
 const app = express();
 

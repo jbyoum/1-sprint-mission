@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client';
-import articleRepository from '../repositories/articleRepository.js';
+import articleRepository from '../repositories/articleRepository';
 
 async function getById(id: number) {
   return await articleRepository.getById(id);

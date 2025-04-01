@@ -1,20 +1,21 @@
 import express from 'express';
-import { withAsync } from '../lib/withAsync.js';
-import { updateComment, deleteComment } from '../controllers/commentController.js';
-import passport from '../config/passport.js';
-import commentAuth from '../middlewares/commentAuth.js';
+import { withAsync } from '../lib/withAsync';
+import { updateComment, deleteComment } from '../controllers/commentController';
+import passport from '../config/passport';
+import commentAuth from '../middlewares/commentAuth';
+import { ACCESS_TOKEN_STRING } from '../config/constants';
 
 const commentsRouter = express.Router();
 
 commentsRouter.patch(
   '/:id',
-  passport.authenticate('access-token', { session: false }),
+  passport.authenticate(ACCESS_TOKEN_STRING, { session: false }),
   commentAuth.verifyCommentOwner,
   withAsync(updateComment),
 );
 commentsRouter.delete(
   '/:id',
-  passport.authenticate('access-token', { session: false }),
+  passport.authenticate(ACCESS_TOKEN_STRING, { session: false }),
   commentAuth.verifyCommentOwner,
   withAsync(deleteComment),
 );

@@ -59,5 +59,5 @@ export async function uploadImage(req: Request, res: Response) {
   const downloadPath = `${process.env.PROTOCOL}://${req.get(
     'host',
   )}/${UPLOAD_FOLDER}/${req.file.filename}`;
-  return res.json({ downloadPath });
+  res.json({ downloadPath });
 }

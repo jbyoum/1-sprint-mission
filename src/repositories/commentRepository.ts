@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client';
-import prisma from '../config/prismaClient.js';
+import prisma from '../config/prismaClient';
 
 async function create(comment: Prisma.CommentUncheckedCreateInput) {
   return await prisma.comment.create({
