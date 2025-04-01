@@ -20,7 +20,7 @@ const refreshTokenOptions = {
 async function jwtVerify(payload: JwtPayload, done: VerifiedCallback) {
   try {
     const { userId } = payload;
-    const user = await userService.getUserById(userId);
+    const user = await userService.getUserById(parseInt(userId));
     if (!user) {
       return done(null, false);
     }

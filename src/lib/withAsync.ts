@@ -1,11 +1,15 @@
 import { NextFunction, Request, Response } from 'express';
 
 export function withAsync(
-  handler: (req: Request | RequestWithUser, res: Response) => Promise<void>,
+  handler: (req: RequestWithUser, res: Response, next: NextFunction) => Promise<void>,
 ) {
-  return async function (req: Request | RequestWithUser, res: Response, next: NextFunction) {
+  return async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
-      await handler(req, res);
+      // if (req.user) {
+      //   await handler(req as RequestWithUser, res, next);
+      // } else {
+      await handler(req, res, next);
+      // }
     } catch (e) {
       next(e);
     }

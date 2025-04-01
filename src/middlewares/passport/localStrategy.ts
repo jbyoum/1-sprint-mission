@@ -10,8 +10,9 @@ const localStrategy = new LocalStrategy(
       const user = await userService.getUser(email, password);
       if (!user) {
         return done(null, false);
+      } else {
+        return done(null, user);
       }
-      return done(null, user);
     } catch (error) {
       return done(error);
     }

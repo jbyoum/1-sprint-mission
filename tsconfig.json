@@ -110,15 +110,6 @@
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
   }
-  // "include": [
-  //   "types/request-authed.d.ts",
-  //   "src/controllers/*.ts",
-  //   "src/middlewares/*.ts",
-  //   "types/passport-user.d.ts",
-  //   "src/config/passport.ts",
-  //   "src/middlewares/localStrategy.ts",
-  //   "types/find-many-options.d.ts",
-  //   "src/repositories/*.ts"
-  // ],
+  // "include": ["types/request-with-user.d.ts"]
   // "exclude": ["src/config/passport.ts", "src/middlewares/localStrategy.ts", "src/repositories/*.ts"]
 }
