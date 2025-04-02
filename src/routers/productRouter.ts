@@ -13,10 +13,10 @@ import {
   getOwnProducts,
   getLikedProducts,
 } from '../controllers/productController';
-import passport from '../config/passport';
+import passport from '../middlewares/passport/passport';
 import productAuth from '../middlewares/productAuth';
 import { ACCESS_TOKEN_STRATEGY } from '../config/constants';
-import { authenticatePartial } from '../config/passportPartial';
+import { authenticatePartial } from '../middlewares/passport/passportPartial';
 
 const productsRouter = express.Router();
 productsRouter.get(

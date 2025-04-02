@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const withAsync_1 = require("../lib/withAsync");
 const commentController_1 = require("../controllers/commentController");
-const passport_1 = __importDefault(require("../config/passport"));
+const passport_1 = __importDefault(require("../middlewares/passport/passport"));
 const commentAuth_1 = __importDefault(require("../middlewares/commentAuth"));
 const constants_1 = require("../config/constants");
 const commentsRouter = express_1.default.Router();

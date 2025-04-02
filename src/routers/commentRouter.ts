@@ -1,7 +1,7 @@
 import express from 'express';
 import { withAsync } from '../lib/withAsync';
 import { updateComment, deleteComment } from '../controllers/commentController';
-import passport from '../config/passport';
+import passport from '../middlewares/passport/passport';
 import commentAuth from '../middlewares/commentAuth';
 import { ACCESS_TOKEN_STRATEGY } from '../config/constants';
 

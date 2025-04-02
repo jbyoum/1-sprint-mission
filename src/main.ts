@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import cookieParser from 'cookie-parser';
-import passport from './config/passport';
+import passport from './middlewares/passport/passport';
 import { PORT, UPLOAD_FOLDER, STATIC_PATH } from './config/constants';
 import usersRouter from './routers/userRouter';
 import articlesRouter from './routers/articleRouter';

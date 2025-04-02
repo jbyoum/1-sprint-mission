@@ -73,10 +73,10 @@ function updatePassword(id, password) {
         return filterSensitiveUserData(updatedUser);
     });
 }
-function refreshToken(userId, refreshToken) {
+function refreshToken(userId) {
     return __awaiter(this, void 0, void 0, function* () {
         const user = yield userRepository_1.default.findById(userId);
-        if (!user || user.refreshToken !== refreshToken) {
+        if (!user) {
             throw new UnauthError_1.default();
         }
         const accessToken = createToken(user);
@@ -93,7 +93,7 @@ function verifyPassword(inputPassword, savedPassword) {
     });
 }
 function filterSensitiveUserData(user = {}) {
-    const { password, refreshToken } = user, rest = __rest(user, ["password", "refreshToken"]);
+    const { password } = user, rest = __rest(user, ["password"]);
     return rest;
 }
 function createToken(userWithId, type) {

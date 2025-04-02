@@ -55,9 +55,9 @@ async function updatePassword(id: number, password: string) {
   return filterSensitiveUserData(updatedUser);
 }
 
-async function refreshToken(userId: number, refreshToken: string) {
+async function refreshToken(userId: number) {
   const user = await userRepository.findById(userId);
-  if (!user || user.refreshToken !== refreshToken) {
+  if (!user) {
     throw new UnauthError();
   }
   const accessToken = createToken(user);
@@ -73,7 +73,7 @@ async function verifyPassword(inputPassword: string, savedPassword: string) {
 }
 
 function filterSensitiveUserData(user: Partial<User> = {}) {
-  const { password, refreshToken, ...rest } = user;
+  const { password, ...rest } = user;
   return rest;
 }
 

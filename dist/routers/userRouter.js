@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const withAsync_1 = require("../lib/withAsync");
 const userController_1 = require("../controllers/userController");
-const passport_1 = __importDefault(require("../config/passport"));
+const passport_1 = __importDefault(require("../middlewares/passport/passport"));
 const constants_1 = require("../config/constants");
 const usersRouter = express_1.default.Router();
 usersRouter.post('/signup', (0, withAsync_1.withAsync)(userController_1.createUser));

@@ -20,8 +20,6 @@ export async function login(req: Request, res: Response) {
   const reqUser = req.user as UserWithId;
   const accessToken = userService.createToken(reqUser);
   const refreshToken = userService.createToken(reqUser, REFRESH_STRING);
-  const { id: userId } = create({ id: reqUser.id }, IdParamsStruct);
-  await userService.updateUser(userId, { refreshToken });
   res.cookie(REFRESH_tOKEN_STRING, refreshToken, {
     path: '/users/token/refresh',
     httpOnly: true,
@@ -32,11 +30,9 @@ export async function login(req: Request, res: Response) {
 }
 
 export async function refreshToken(req: Request, res: Response) {
-  const { refreshToken } = req.cookies;
   const reqUser = req.user as UserWithId;
   const { id: userId } = create({ id: reqUser.id }, IdParamsStruct);
-  const { accessToken, newRefreshToken } = await userService.refreshToken(userId, refreshToken);
-  await userService.updateUser(userId, { refreshToken: newRefreshToken });
+  const { accessToken, newRefreshToken } = await userService.refreshToken(userId);
   res.cookie(REFRESH_tOKEN_STRING, newRefreshToken, {
     path: '/users/token/refresh',
     httpOnly: true,

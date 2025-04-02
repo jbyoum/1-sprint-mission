@@ -8,7 +8,7 @@ import {
   login,
   refreshToken,
 } from '../controllers/userController';
-import passport from '../config/passport';
+import passport from '../middlewares/passport/passport';
 import { ACCESS_TOKEN_STRATEGY, LOCAL_STRING, REFRESH_TOKEN_STRATEGY } from '../config/constants';
 
 const usersRouter = express.Router();

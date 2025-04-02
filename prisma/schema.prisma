@@ -19,7 +19,6 @@ model User {
   nickname     String
   image        String?
   password     String
-  refreshToken String?
   articles     Article[]
   products     Product[]
   comments     Comment[]

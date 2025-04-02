@@ -11,9 +11,9 @@ import {
   dislikeArticle,
   likeArticle,
 } from '../controllers/articleController';
-import passport from '../config/passport';
+import passport from '../middlewares/passport/passport';
 import articleAuth from '../middlewares/articleAuth';
-import { authenticatePartial } from '../config/passportPartial';
+import { authenticatePartial } from '../middlewares/passport/passportPartial';
 import { ACCESS_TOKEN_STRATEGY } from '../config/constants';
 
 const articlesRouter = express.Router();

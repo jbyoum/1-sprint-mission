@@ -35,8 +35,6 @@ function login(req, res) {
         const reqUser = req.user;
         const accessToken = userService_1.default.createToken(reqUser);
         const refreshToken = userService_1.default.createToken(reqUser, constants_1.REFRESH_STRING);
-        const { id: userId } = (0, superstruct_1.create)({ id: reqUser.id }, commonStructs_1.IdParamsStruct);
-        yield userService_1.default.updateUser(userId, { refreshToken });
         res.cookie(constants_1.REFRESH_tOKEN_STRING, refreshToken, {
             path: '/users/token/refresh',
             httpOnly: true,
@@ -48,11 +46,9 @@ function login(req, res) {
 }
 function refreshToken(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        const { refreshToken } = req.cookies;
         const reqUser = req.user;
         const { id: userId } = (0, superstruct_1.create)({ id: reqUser.id }, commonStructs_1.IdParamsStruct);
-        const { accessToken, newRefreshToken } = yield userService_1.default.refreshToken(userId, refreshToken);
-        yield userService_1.default.updateUser(userId, { refreshToken: newRefreshToken });
+        const { accessToken, newRefreshToken } = yield userService_1.default.refreshToken(userId);
         res.cookie(constants_1.REFRESH_tOKEN_STRING, newRefreshToken, {
             path: '/users/token/refresh',
             httpOnly: true,

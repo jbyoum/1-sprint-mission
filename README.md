@@ -5,7 +5,7 @@
 주어진 기본 요구사항과 심화 요구사항을 구현하였습니다.<br/><br/>
 
 <div align="center">
-<img src="./post.png" width="40%" height="40%">
+<img src="https://raw.githubusercontent.com/jbyoum/1-sprint-mission/refs/heads/part2-%EC%97%BC%EC%B0%AC%EC%98%81-sprint5/post.png" width="40%" height="40%">
 </div>
 <br/>
 몇 가지 기본적인 기능과 스프린트 미션 4와 비교하여 수정된 부분을 테스트했습니다.
@@ -16,7 +16,7 @@
 
 Like 모델을 게시글과 상품에 대해 분리했습니다.
 
-```javascript
+```prisma
 model LikeArticle {
   User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    Int
@@ -29,12 +29,11 @@ model LikeArticle {
 ```
 
 이로써 의도치 않은 Anomaly를 방지할 수 있습니다.<br/>
-반면 Comment는 분리하지 않았는데, 그 이유는 DB 접근의 성능을 높이기 위함입니다. 일반적으로 자신이 작성한 모든 댓글을 한 눈에 보는 기능을 제공하는 케이스가 많다고 가정하였습니다. 이 자주 사용되는 쿼리에 대해 모델이 분리되어 있다면 Join비용, 거기에 검색기능을 추가한다면 두 번의 탐색, 병합비용이 발생합니다.
-때문에 Comment는 Anomaly의 위험이 있지만 분리하지 않았습니다.
+반면 Comment는 분리하지 않았는데, 그 이유는 일반적으로 자신이 작성한 모든 댓글을 한 눈에 보는 기능을 제공하는 케이스가 많다고 가정하였기 떄문입니다. 이 자주 사용되는 쿼리에 대해 모델이 분리되어 있다면 Join비용, 거기에 검색기능을 추가한다면 두 번의 탐색, 병합비용이 발생합니다. 때문에 Comment는 Anomaly의 위험이 있지만 분리하지 않았습니다.
 
 ### constants.ts
 
-프로젝트 내에서 하드코딩을 최대한 피하고자 가능한 문자열을 대부분 초기화했습니다. 기존 방법대로 사용하는 것이 더 적합한 일부 문자열은 대상에서 제외되었습니다.
+프로젝트 내에서 하드코딩을 최대한 피하고자 가능한 문자열을 대부분 이 파일에 초기화했습니다. 기존 방법대로 사용하는 것이 더 적합한 일부 문자열은 대상에서 제외되었습니다.
 
 ### 일부 기능의 Router 변경
 
@@ -64,6 +63,12 @@ import { User } from '@prisma/client';
 export type UserWithId = { id: number } & Partial<Omit<User, 'id'>>;
 ```
 
+### Refresh Token 제외
+
+개발 자료를 참고하며 개발하다 보니 세션 기반 인증을 위한 Refresh Token을 저장하여 비교하는 로직이 포함되어 있었습니다. Refresh Token의 검증은 전략 파일의 JwtStrategy 클래스 생성 시 Passport 내부적으로 진행되기 때문에, 기존 로직은 불필요한 과정입니다.<br/>
+User 모델에서 refreshToken 속성을 제거하고, userServie의 refreshToken 함수에서 토큰을 비교하는 로직을 제거했습니다.
+
 ### 그 외
 
 - 일부 잘못 구현되어 있던 로직을 수정했습니다.
+- passport.ts 파일을 middlewares로 옮겼습니다.
