@@ -10,6 +10,7 @@ import {
 } from '../structs/userStructs';
 import likeService from '../services/likeService';
 import { Request, Response } from 'express';
+import { UserWithId } from '../../types/user-with-id';
 
 export async function createUser(req: Request, res: Response) {
   const data = create(req.body, CreateUserBodyStruct);

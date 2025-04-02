@@ -1,18 +1,22 @@
 import { Request, Response, NextFunction } from 'express';
 import passport from './passport';
 
+function isUser(user: unknown): user is Express.User {
+  return typeof user === 'object' && user !== null;
+}
+
 export function authenticatePartial(strategyName: string) {
   return (req: Request, res: Response, next: NextFunction) => {
     passport.authenticate(
       strategyName,
       { session: false },
       (
-        err: any,
-        _user?: Express.User | false | null,
+        _err: any,
+        user?: Express.User | false | null,
         _info?: object | string | Array<string | undefined>,
       ) => {
-        if (err) {
-          return next(err);
+        if (isUser(user)) {
+          req.user = user;
         }
         next();
       },

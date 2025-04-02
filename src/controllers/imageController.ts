@@ -7,7 +7,7 @@ import FileExtError from '../lib/errors/FileExtError';
 import { Request, Response } from 'express';
 import EmptyUploadError from '../lib/errors/EmptyUploadError';
 
-const __dirname = path.resolve();
+const dirname = path.resolve();
 const FILE_SIZE_LIMIT = 5 * 1024 * 1024;
 const allowedExt = [
   'jpg',
@@ -26,7 +26,7 @@ const allowedExt = [
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, UPLOAD_FOLDER));
+    cb(null, path.join(dirname, UPLOAD_FOLDER));
   },
   filename: (req, file, cb) => {
     file.originalname = Buffer.from(file.originalname, 'latin1').toString('utf8');
@@ -47,7 +47,7 @@ export async function uploadImage(req: Request, res: Response) {
   if (!req.file) {
     throw new EmptyUploadError();
   }
-  const filePath = `${__dirname}/${UPLOAD_FOLDER}/${req.file.filename}`;
+  const filePath = `${dirname}/${UPLOAD_FOLDER}/${req.file.filename}`;
   const mimeType = await fileTypeFromFile(filePath);
   const ext = mimeType ? mimeType['ext'] : null;
   if (!ext || !allowedExt.includes(ext)) {

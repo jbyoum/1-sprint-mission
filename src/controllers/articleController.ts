@@ -13,6 +13,7 @@ import likeService from '../services/likeService';
 import AlreadyExstError from '../lib/errors/AlreadyExstError';
 import { Request, Response } from 'express';
 import { Prisma } from '@prisma/client';
+import { UserWithId } from '../../types/user-with-id';
 
 export async function createArticle(req: Request, res: Response) {
   const reqUser = req.user as UserWithId;
@@ -33,10 +34,12 @@ export async function getArticle(req: Request, res: Response) {
   if (!article) {
     throw new NotFoundError(articleService.getEntityName(), id);
   }
+
   if (!req.user) {
     res.send(article);
   } else {
-    const { id: userId } = create({ id: req.user.id }, IdParamsStruct);
+    const reqUser = req.user as UserWithId;
+    const { id: userId } = create({ id: reqUser.id }, IdParamsStruct);
     const like = await likeService.getByArticle(userId, id);
     res.send({ ...article, isLiked: !!like });
   }

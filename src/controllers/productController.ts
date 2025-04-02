@@ -5,7 +5,7 @@ import {
   CreateProductBodyStruct,
   GetProductListParamsStruct,
   UpdateProductBodyStruct,
-} from '../structs/productStruct.js';
+} from '../structs/productStruct';
 import { CreateCommentBodyStruct, GetCommentListParamsStruct } from '../structs/commentStruct';
 import productService from '../services/productService';
 import commentService from '../services/commentService';
@@ -13,6 +13,7 @@ import likeService from '../services/likeService';
 import { Request, Response } from 'express';
 import AlreadyExstError from '../lib/errors/AlreadyExstError';
 import { Prisma } from '@prisma/client';
+import { UserWithId } from '../../types/user-with-id';
 
 export async function createProduct(req: Request, res: Response) {
   const data = create(req.body, CreateProductBodyStruct);
@@ -29,7 +30,6 @@ export async function createProduct(req: Request, res: Response) {
 
 export async function getProduct(req: Request, res: Response) {
   const { id } = create(req.params, IdParamsStruct);
-
   const product = await productService.getById(id);
   if (!product) {
     throw new NotFoundError(productService.getEntityName(), id);
@@ -38,7 +38,8 @@ export async function getProduct(req: Request, res: Response) {
   if (!req.user) {
     res.send(product);
   } else {
-    const { id: userId } = create({ id: req.user.id }, IdParamsStruct);
+    const reqUser = req.user as UserWithId;
+    const { id: userId } = create({ id: reqUser.id }, IdParamsStruct);
     const like = await likeService.getByProduct(userId, id);
     res.send({ ...product, isLiked: !!like });
   }

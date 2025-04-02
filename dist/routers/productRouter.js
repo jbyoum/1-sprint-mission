@@ -1,0 +1,23 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const withAsync_1 = require("../lib/withAsync");
+const productController_1 = require("../controllers/productController");
+const passport_1 = __importDefault(require("../config/passport"));
+const productAuth_1 = __importDefault(require("../middlewares/productAuth"));
+const constants_1 = require("../config/constants");
+const passportPartial_1 = require("../config/passportPartial");
+const productsRouter = express_1.default.Router();
+productsRouter.post('/', passport_1.default.authenticate(constants_1.ACCESS_TOKEN_STRING, { session: false }), (0, withAsync_1.withAsync)(productController_1.createProduct));
+productsRouter.get('/:id', (0, passportPartial_1.authenticatePartial)(constants_1.ACCESS_TOKEN_STRING), (0, withAsync_1.withAsync)(productController_1.getProduct));
+productsRouter.patch('/:id', passport_1.default.authenticate(constants_1.ACCESS_TOKEN_STRING, { session: false }), productAuth_1.default.verifyProductOwner, (0, withAsync_1.withAsync)(productController_1.updateProduct));
+productsRouter.delete('/:id', passport_1.default.authenticate(constants_1.ACCESS_TOKEN_STRING, { session: false }), productAuth_1.default.verifyProductOwner, (0, withAsync_1.withAsync)(productController_1.deleteProduct));
+productsRouter.get('/', (0, withAsync_1.withAsync)(productController_1.getProductList));
+productsRouter.post('/:id/comments', passport_1.default.authenticate(constants_1.ACCESS_TOKEN_STRING, { session: false }), (0, withAsync_1.withAsync)(productController_1.createComment));
+productsRouter.get('/:id/comments', (0, withAsync_1.withAsync)(productController_1.getCommentList));
+productsRouter.get('/:id/like', passport_1.default.authenticate(constants_1.ACCESS_TOKEN_STRING, { session: false }), (0, withAsync_1.withAsync)(productController_1.likeProduct));
+productsRouter.get('/:id/dislike', passport_1.default.authenticate(constants_1.ACCESS_TOKEN_STRING, { session: false }), (0, withAsync_1.withAsync)(productController_1.dislikeProduct));
+exports.default = productsRouter;
