@@ -14,43 +14,45 @@ import {
 import passport from '../config/passport';
 import articleAuth from '../middlewares/articleAuth';
 import { authenticatePartial } from '../config/passportPartial';
-import { ACCESS_TOKEN_STRING } from '../config/constants';
+import { ACCESS_TOKEN_STRATEGY } from '../config/constants';
 
 const articlesRouter = express.Router();
-
-articlesRouter.post(
-  '/',
-  passport.authenticate(ACCESS_TOKEN_STRING, { session: false }),
-  withAsync(createArticle),
-);
-articlesRouter.get('/', withAsync(getArticleList));
-articlesRouter.get('/:id', authenticatePartial(ACCESS_TOKEN_STRING), withAsync(getArticle));
-articlesRouter.patch(
-  '/:id',
-  passport.authenticate(ACCESS_TOKEN_STRING, { session: false }),
-  articleAuth.verifyAricleOwner,
-  withAsync(updateArticle),
-);
-articlesRouter.delete(
-  '/:id',
-  passport.authenticate(ACCESS_TOKEN_STRING, { session: false }),
-  articleAuth.verifyAricleOwner,
-  withAsync(deleteArticle),
-);
 articlesRouter.post(
   '/:id/comments',
-  passport.authenticate(ACCESS_TOKEN_STRING, { session: false }),
+  passport.authenticate(ACCESS_TOKEN_STRATEGY, { session: false }),
   withAsync(createComment),
 );
 articlesRouter.get('/:id/comments', withAsync(getCommentList));
 articlesRouter.get(
   '/:id/like',
-  passport.authenticate(ACCESS_TOKEN_STRING, { session: false }),
+  passport.authenticate(ACCESS_TOKEN_STRATEGY, { session: false }),
   withAsync(likeArticle),
 );
 articlesRouter.get(
   '/:id/dislike',
-  passport.authenticate(ACCESS_TOKEN_STRING, { session: false }),
+  passport.authenticate(ACCESS_TOKEN_STRATEGY, { session: false }),
   withAsync(dislikeArticle),
 );
+
+articlesRouter.get('/:id', authenticatePartial(ACCESS_TOKEN_STRATEGY), withAsync(getArticle));
+articlesRouter.patch(
+  '/:id',
+  passport.authenticate(ACCESS_TOKEN_STRATEGY, { session: false }),
+  articleAuth.verifyAricleOwner,
+  withAsync(updateArticle),
+);
+articlesRouter.delete(
+  '/:id',
+  passport.authenticate(ACCESS_TOKEN_STRATEGY, { session: false }),
+  articleAuth.verifyAricleOwner,
+  withAsync(deleteArticle),
+);
+
+articlesRouter.post(
+  '/',
+  passport.authenticate(ACCESS_TOKEN_STRATEGY, { session: false }),
+  withAsync(createArticle),
+);
+articlesRouter.get('/', withAsync(getArticleList));
+
 export default articlesRouter;

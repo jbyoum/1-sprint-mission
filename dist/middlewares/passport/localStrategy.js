@@ -14,8 +14,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const passport_local_1 = require("passport-local");
 const userService_1 = __importDefault(require("../../services/userService"));
+const constants_1 = require("../../config/constants");
 const localStrategy = new passport_local_1.Strategy({
-    usernameField: 'email',
+    usernameField: constants_1.EMAIL_STRING,
 }, (email, password, done) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield userService_1.default.getUser(email, password);

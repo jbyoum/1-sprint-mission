@@ -19,7 +19,7 @@ async function verifyCommentOwner(req: Request, res: Response, next: NextFunctio
     }
 
     if (comment.userId !== userId) {
-      throw new ForbiddenError();
+      throw new ForbiddenError(commentService.getEntityName(), commentId, userId);
     }
 
     return next();

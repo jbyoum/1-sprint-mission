@@ -9,11 +9,14 @@ import {
 import { CreateCommentBodyStruct, GetCommentListParamsStruct } from '../structs/commentStruct';
 import productService from '../services/productService';
 import commentService from '../services/commentService';
-import likeService from '../services/likeService';
+import likeProductService from '../services/likeProductService';
 import { Request, Response } from 'express';
 import AlreadyExstError from '../lib/errors/AlreadyExstError';
 import { Prisma } from '@prisma/client';
 import { UserWithId } from '../../types/user-with-id';
+import { ProductListWithCountDTO, ProductWithLikeDTO } from '../lib/dtos/ProductResDTO';
+import { CommentListWithCursorDTO } from '../lib/dtos/CommentResDTO';
+import { ASC_STRING, DESC_STRING, RECENT_STRING } from '../config/constants';
 
 export async function createProduct(req: Request, res: Response) {
   const data = create(req.body, CreateProductBodyStruct);
@@ -40,8 +43,8 @@ export async function getProduct(req: Request, res: Response) {
   } else {
     const reqUser = req.user as UserWithId;
     const { id: userId } = create({ id: reqUser.id }, IdParamsStruct);
-    const like = await likeService.getByProduct(userId, id);
-    res.send({ ...product, isLiked: !!like });
+    const like = await likeProductService.getById(userId, id);
+    res.send(new ProductWithLikeDTO(product, like));
   }
 }
 
@@ -77,14 +80,11 @@ export async function getProductList(req: Request, res: Response) {
   const products = await productService.getList({
     skip: (page - 1) * pageSize,
     take: pageSize,
-    orderBy: orderBy === 'recent' ? { id: 'desc' } : { id: 'asc' },
+    orderBy: orderBy === RECENT_STRING ? { id: DESC_STRING } : { id: ASC_STRING },
     where: keyword ? search.where : {},
   });
 
-  res.send({
-    list: products,
-    totalCount,
-  });
+  res.send(new ProductListWithCountDTO(products, totalCount));
 }
 
 export async function createComment(req: Request, res: Response) {
@@ -120,10 +120,7 @@ export async function getCommentList(req: Request, res: Response) {
   const cursorComment = commentsWithCursorComment[comments.length - 1];
   const nextCursor = cursorComment ? cursorComment.id : null;
 
-  res.send({
-    list: comments,
-    nextCursor,
-  });
+  res.send(new CommentListWithCursorDTO(comments, nextCursor));
 }
 
 export async function likeProduct(req: Request, res: Response) {
@@ -131,12 +128,12 @@ export async function likeProduct(req: Request, res: Response) {
   const reqUser = req.user as UserWithId;
   const { id: userId } = create({ id: reqUser.id }, IdParamsStruct);
 
-  const existedLike = await likeService.getByProduct(userId, productId);
+  const existedLike = await likeProductService.getById(userId, productId);
   if (existedLike) {
-    throw new AlreadyExstError(likeService.getEntityName());
+    throw new AlreadyExstError(likeProductService.getEntityName());
   }
 
-  const like = await likeService.create({
+  const like = await likeProductService.create({
     userId: userId,
     productId: productId,
   });
@@ -148,11 +145,59 @@ export async function dislikeProduct(req: Request, res: Response) {
   const reqUser = req.user as UserWithId;
   const { id: userId } = create({ id: reqUser.id }, IdParamsStruct);
 
-  const existedLike = await likeService.getByProduct(userId, productId);
+  const existedLike = await likeProductService.getById(userId, productId);
   if (!existedLike) {
-    throw new NotFoundError(likeService.getEntityName(), userId);
+    throw new NotFoundError(likeProductService.getEntityName(), userId);
   }
 
-  await likeService.removeByProduct(userId, productId);
+  await likeProductService.remove(userId, productId);
   res.status(204).send();
+}
+
+export async function getOwnProducts(req: Request, res: Response) {
+  const { page, pageSize, orderBy } = create(req.query, GetProductListParamsStruct);
+  const reqUser = req.user as UserWithId;
+
+  const { id: userId } = create({ id: reqUser.id }, IdParamsStruct);
+
+  const totalCount = await productService.count({ where: { userId: userId } });
+  const products = await productService.getList({
+    skip: (page - 1) * pageSize,
+    take: pageSize,
+    orderBy: orderBy === RECENT_STRING ? { createdAt: DESC_STRING } : { id: ASC_STRING },
+    where: {
+      userId: userId,
+    },
+  });
+
+  res.send(new ProductListWithCountDTO(products, totalCount));
+}
+
+export async function getLikedProducts(req: Request, res: Response) {
+  const { page, pageSize, orderBy } = create(req.query, GetProductListParamsStruct);
+  const reqUser = req.user as UserWithId;
+  const { id: userId } = create({ id: reqUser.id }, IdParamsStruct);
+
+  const likes = await likeProductService.getList({
+    where: {
+      userId: userId,
+    },
+    select: { productId: true },
+  });
+  const likedProductIds = likes
+    .map((like) => like.productId)
+    .filter((element): element is number => element !== null);
+  const totalCount = likedProductIds.length;
+  const likedProducts = await productService.getList({
+    skip: (page - 1) * pageSize,
+    take: pageSize,
+    orderBy: orderBy === RECENT_STRING ? { createdAt: DESC_STRING } : { id: ASC_STRING },
+    where: {
+      id: {
+        in: likedProductIds,
+      },
+    },
+  });
+
+  res.send(new ProductListWithCountDTO(likedProducts, totalCount));
 }

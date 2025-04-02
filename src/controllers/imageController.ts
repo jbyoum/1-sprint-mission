@@ -1,4 +1,10 @@
-import { UPLOAD_FOLDER } from '../config/constants';
+import {
+  EXT_STRING,
+  FILE_NAME_ENCODING,
+  FILE_NAME_TOSTRING,
+  HOST_STRING,
+  UPLOAD_FOLDER,
+} from '../config/constants';
 import multer from 'multer';
 import path from 'path';
 import { fileTypeFromFile } from 'file-type';
@@ -29,7 +35,9 @@ const storage = multer.diskStorage({
     cb(null, path.join(dirname, UPLOAD_FOLDER));
   },
   filename: (req, file, cb) => {
-    file.originalname = Buffer.from(file.originalname, 'latin1').toString('utf8');
+    file.originalname = Buffer.from(file.originalname, FILE_NAME_ENCODING).toString(
+      FILE_NAME_TOSTRING,
+    );
     const ext = path.extname(file.originalname);
     const baseName = path.basename(file.originalname, ext);
     const timestamp = Date.now();
@@ -49,7 +57,7 @@ export async function uploadImage(req: Request, res: Response) {
   }
   const filePath = `${dirname}/${UPLOAD_FOLDER}/${req.file.filename}`;
   const mimeType = await fileTypeFromFile(filePath);
-  const ext = mimeType ? mimeType['ext'] : null;
+  const ext = mimeType ? mimeType[EXT_STRING] : null;
   if (!ext || !allowedExt.includes(ext)) {
     fs.unlink(filePath, (err) => {
       if (err) console.error('Failed to delete file:', err);
@@ -57,7 +65,7 @@ export async function uploadImage(req: Request, res: Response) {
     throw new FileExtError();
   }
   const downloadPath = `${process.env.PROTOCOL}://${req.get(
-    'host',
+    HOST_STRING,
   )}/${UPLOAD_FOLDER}/${req.file.filename}`;
   res.json({ downloadPath });
 }

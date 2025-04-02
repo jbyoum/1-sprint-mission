@@ -28,7 +28,7 @@ function verifyCommentOwner(req, res, next) {
                 throw new NotFoundError_1.default(commentService_1.default.getEntityName(), commentId);
             }
             if (comment.userId !== userId) {
-                throw new ForbiddenError_1.default();
+                throw new ForbiddenError_1.default(commentService_1.default.getEntityName(), commentId, userId);
             }
             return next();
         }

@@ -28,9 +28,12 @@ const articleStructs_1 = require("../structs/articleStructs");
 const commentStruct_1 = require("../structs/commentStruct");
 const articleService_1 = __importDefault(require("../services/articleService"));
 const commentService_1 = __importDefault(require("../services/commentService"));
-const likeService_1 = __importDefault(require("../services/likeService"));
+const likeArticleService_1 = __importDefault(require("../services/likeArticleService"));
 const AlreadyExstError_1 = __importDefault(require("../lib/errors/AlreadyExstError"));
 const client_1 = require("@prisma/client");
+const ArticleResDTO_1 = require("../lib/dtos/ArticleResDTO");
+const CommentResDTO_1 = require("../lib/dtos/CommentResDTO");
+const constants_1 = require("../config/constants");
 function createArticle(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         const reqUser = req.user;
@@ -47,15 +50,14 @@ function getArticle(req, res) {
         if (!article) {
             throw new NotFoundError_1.default(articleService_1.default.getEntityName(), id);
         }
-        console.log(req.user);
         if (!req.user) {
             res.send(article);
         }
         else {
             const reqUser = req.user;
             const { id: userId } = (0, superstruct_1.create)({ id: reqUser.id }, commonStructs_1.IdParamsStruct);
-            const like = yield likeService_1.default.getByArticle(userId, id);
-            res.send(Object.assign(Object.assign({}, article), { isLiked: !!like }));
+            const like = yield likeArticleService_1.default.getById(userId, id);
+            res.send(new ArticleResDTO_1.ArticleWithLikeDTO(article, like));
         }
     });
 }
@@ -89,14 +91,10 @@ function getArticleList(req, res) {
         const articles = yield articleService_1.default.getList({
             skip: (page - 1) * pageSize,
             take: pageSize,
-            orderBy: orderBy === 'recent' ? { createdAt: 'desc' } : { createdAt: 'asc' },
+            orderBy: orderBy === constants_1.RECENT_STRING ? { createdAt: constants_1.DESC_STRING } : { createdAt: constants_1.ASC_STRING },
             where: keyword ? search.where : {},
         });
-        const response = {
-            list: articles,
-            totalCount,
-        };
-        res.send(response);
+        res.send(new ArticleResDTO_1.ArticleListWithCountDTO(articles, totalCount));
     });
 }
 function createComment(req, res) {
@@ -125,15 +123,12 @@ function getCommentList(req, res) {
             cursor: cursor ? { id: cursor } : undefined,
             take: limit + 1,
             where: { articleId },
-            orderBy: { createdAt: 'desc' },
+            orderBy: { createdAt: constants_1.DESC_STRING },
         });
         const comments = commentsWithCursor.slice(0, limit);
         const cursorComment = commentsWithCursor[commentsWithCursor.length - 1];
         const nextCursor = cursorComment ? cursorComment.id : null;
-        res.send({
-            list: comments,
-            nextCursor,
-        });
+        res.send(new CommentResDTO_1.CommentListWithCursorDTO(comments, nextCursor));
     });
 }
 function likeArticle(req, res) {
@@ -141,11 +136,11 @@ function likeArticle(req, res) {
         const { id: articleId } = (0, superstruct_1.create)(req.params, commonStructs_1.IdParamsStruct);
         const reqUser = req.user;
         const { id: userId } = (0, superstruct_1.create)({ id: reqUser.id }, commonStructs_1.IdParamsStruct);
-        const existedLike = yield likeService_1.default.getByArticle(userId, articleId);
+        const existedLike = yield likeArticleService_1.default.getById(userId, articleId);
         if (existedLike) {
-            throw new AlreadyExstError_1.default(likeService_1.default.getEntityName());
+            throw new AlreadyExstError_1.default(likeArticleService_1.default.getEntityName());
         }
-        const like = yield likeService_1.default.create({
+        const like = yield likeArticleService_1.default.create({
             userId: userId,
             articleId: articleId,
         });
@@ -157,11 +152,11 @@ function dislikeArticle(req, res) {
         const { id: articleId } = (0, superstruct_1.create)(req.params, commonStructs_1.IdParamsStruct);
         const reqUser = req.user;
         const { id: userId } = (0, superstruct_1.create)({ id: reqUser.id }, commonStructs_1.IdParamsStruct);
-        const existedLike = yield likeService_1.default.getByArticle(userId, articleId);
+        const existedLike = yield likeArticleService_1.default.getById(userId, articleId);
         if (!existedLike) {
-            throw new NotFoundError_1.default(likeService_1.default.getEntityName(), userId);
+            throw new NotFoundError_1.default(likeArticleService_1.default.getEntityName(), userId);
         }
-        yield likeService_1.default.removeByArticle(userId, articleId);
+        yield likeArticleService_1.default.remove(userId, articleId);
         res.status(204).send();
     });
 }

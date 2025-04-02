@@ -42,7 +42,7 @@ const storage = multer_1.default.diskStorage({
         cb(null, path_1.default.join(dirname, constants_1.UPLOAD_FOLDER));
     },
     filename: (req, file, cb) => {
-        file.originalname = Buffer.from(file.originalname, 'latin1').toString('utf8');
+        file.originalname = Buffer.from(file.originalname, constants_1.FILE_NAME_ENCODING).toString(constants_1.FILE_NAME_TOSTRING);
         const ext = path_1.default.extname(file.originalname);
         const baseName = path_1.default.basename(file.originalname, ext);
         const timestamp = Date.now();
@@ -61,7 +61,7 @@ function uploadImage(req, res) {
         }
         const filePath = `${dirname}/${constants_1.UPLOAD_FOLDER}/${req.file.filename}`;
         const mimeType = yield (0, file_type_1.fileTypeFromFile)(filePath);
-        const ext = mimeType ? mimeType['ext'] : null;
+        const ext = mimeType ? mimeType[constants_1.EXT_STRING] : null;
         if (!ext || !allowedExt.includes(ext)) {
             fs_1.default.unlink(filePath, (err) => {
                 if (err)
@@ -69,7 +69,7 @@ function uploadImage(req, res) {
             });
             throw new FileExtError_1.default();
         }
-        const downloadPath = `${process.env.PROTOCOL}://${req.get('host')}/${constants_1.UPLOAD_FOLDER}/${req.file.filename}`;
+        const downloadPath = `${process.env.PROTOCOL}://${req.get(constants_1.HOST_STRING)}/${constants_1.UPLOAD_FOLDER}/${req.file.filename}`;
         res.json({ downloadPath });
     });
 }

@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import passport from './passport';
 
 function isUser(user: unknown): user is Express.User {
-  return typeof user === 'object' && user !== null;
+  return user instanceof Object;
 }
 
 export function authenticatePartial(strategyName: string) {

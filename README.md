@@ -1,53 +1,69 @@
-# 스프린트 미션 4
+# 스프린트 미션 5
 
 ## 미션 목표
 
 주어진 기본 요구사항과 심화 요구사항을 구현하였습니다.<br/><br/>
 
 <div align="center">
-<img src="./test.png" width="30%" height="30%">
+<img src="./post.png" width="40%" height="40%">
 </div>
 <br/>
-스프린트 미션 3을 기반으로 한 미션이기 때문에 articles와 products의 중복 기능은 제외하고 아이디를 바꿔가며 postman을 통해 테스트했습니다.
+몇 가지 기본적인 기능과 스프린트 미션 4와 비교하여 수정된 부분을 테스트했습니다.
 
 ## 수정사항
 
-### 외부 종속성
+### SCHEMA
 
-수행 도중 사용한 라이브러리를 일부 변경하였습니다. npm install이 필요합니다.
+Like 모델을 게시글과 상품에 대해 분리했습니다.
 
-### MVC
+```javascript
+model LikeArticle {
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  articleId Int
+  createdAt DateTime @default(now())
 
-미션 목표에는 기재되어 있지 않지만, 강사님께서 미션에 포함하도록 말씀하신 MVC 패턴을 준수하도록 하였습니다.
+  @@id([userId, articleId])
+}
+```
 
-- DB 접근은 Model(Repository)에서만 진행합니다.
-- 모델에의 접근은 Service를 통해서만 가능합니다.
-- 복수의 테이블에 접근하기 위해서는 복수의 Service를 import합니다.
+이로써 의도치 않은 Anomaly를 방지할 수 있습니다.<br/>
+반면 Comment는 분리하지 않았는데, 그 이유는 DB 접근의 성능을 높이기 위함입니다. 일반적으로 자신이 작성한 모든 댓글을 한 눈에 보는 기능을 제공하는 케이스가 많다고 가정하였습니다. 이 자주 사용되는 쿼리에 대해 모델이 분리되어 있다면 Join비용, 거기에 검색기능을 추가한다면 두 번의 탐색, 병합비용이 발생합니다.
+때문에 Comment는 Anomaly의 위험이 있지만 분리하지 않았습니다.
 
-### 명세
+### constants.ts
 
-스프린트 미션 3의 모범 답안을 기준으로 진행하기 때문에 기본적인 클라이언트와의 통신은 기존 방식대로 진행되어야 하지만, 편의를 위해 일부 명세를 변경하였습니다.
+프로젝트 내에서 하드코딩을 최대한 피하고자 가능한 문자열을 대부분 초기화했습니다. 기존 방법대로 사용하는 것이 더 적합한 일부 문자열은 대상에서 제외되었습니다.
 
-- 몇몇 API의 엔드포인트 url을 변경했습니다. (/token/refresh 등)
-- 스프린트 미션 4에서 추가된 기능들에 대한 클라이언트의 요청 JSON 양식을 임의로 설정했습니다.
+### 일부 기능의 Router 변경
 
-### 파일, 변수명
+userRouter에 속한 상품 목록을 가져오는 기능이 productRouter로 이동하였습니다.
 
-마찬가지로 편의와 코드의 통일을 위해 일부 파일이나 변수의 이름을 변경하였습니다.
+### 상품과 게시글의 상세 조회
 
-- lib와 config와 관련된 폴더 구조를 변경하였습니다.
-- Controller나 Service 등 파일명의 앞부분을 단수로 변경하였습니다.
+상세 조회를 비회원도 가능하게 변경하였습니다. 이를 위해 인증에 실패해도 다음 함수를 실행하도록 하는 고차함수를 작성했습니다.
 
-### 로직
+### 에러 메세지 추가
 
-스프린트 미션 4의 목표 달성 이외에 추가적으로 로직을 수정하였습니다.
+디버깅 시나리오를 위해 ForbiddenError에 대해 NotFoundError와 같은 메세지를 추가했습니다.<br/>
+UnauthError는 메세지를 추가하지 않았는데, 클라이언트의 요청 기능에 따라 상황이 분리되어 있어 충분해 보이고, 클라이언트에 'refresh token이 저장된 값과 다르다', 'serialize 과정에서 오류가 발생했다' 등의 정보는 공격자에게 과한 정보를 주는 것일지도 모른다는 생각이 들었기 때문입니다.
 
-- 실패 응답 상황을 위해, db에서의 constraint 혹은 이와 유사한 경우에 대해 필요했던 검증 로직을 제거했습니다.<br/>
-  예를 들어 create의 경우, 이미 unique한 데이터가 존재할 때 이것을 미리 검사하고 알맞은 실패 응답을 보내지 않고, prisma에서 constraint 검사를 통해 자동으로 생성되는 Prisma Error를 errorController에서 처리하는 방법으로 변경하였습니다. 이를 통해 DB 접근을 줄이는 것이 목적입니다.
-- 기존의 이미지 타입 검증은 공격자의 수정을 통해 무력화 될 가능성이 있기 때문에 실제 바이너리를 읽어서 검증하는 방법으로 변경하였습니다. 이 방법 역시 한계점이 존재하지만 초급 프로젝트에서 사용하기도 했고 조금은 더 나은 방법이라고 생각해 적용하였습니다.
+### DTO
+
+심화 요구사항에 따라 DTO를 구현하였습니다.<br/>
+기존의 함수 결과로 바로 응답하는 케이스는 제외하고 추가적으로 데이터 구조를 변경하는 부분에 대해 구성하였습니다.<br/>
+Response에 해당하는 부분에 대해서만 구성하고 Request에 해당하는 create 등의 케이스에 대해서는 그러지 않았는데, 이미 Prisma에서 제공하는 타입을 기준으로 Controller --> Service --> Repository 의 데이터 전달이 이루어지고 있었기 때문입니다.
+
+### Global Type
+
+타입 안정성을 위해 UserWithId 타입을 선언하여 전역으로 활용하였습니다.
+
+```typescript
+import { User } from '@prisma/client';
+export type UserWithId = { id: number } & Partial<Omit<User, 'id'>>;
+```
 
 ### 그 외
 
-- 목표 달성을 위해 User 모델에 refreshToken 속성을 추가하고 Like 모델을 생성했습니다.
-- .env에 JWT_SECRET을 추가했습니다.
-- 이미지 업로드 및 라우팅에 사용되는 환경변수 STATIC_PATH, PUBLIC_PATH가 활용되는 부분을 수정했습니다.
+- 일부 잘못 구현되어 있던 로직을 수정했습니다.

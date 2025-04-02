@@ -1,16 +1,14 @@
 import { create } from 'superstruct';
 import userService from '../services/userService';
-import productService from '../services/productService';
 import { IdParamsStruct } from '../structs/commonStructs';
 import {
   CreatePasswordStruct,
   CreateUserBodyStruct,
-  GetListParamsStruct,
   UpdateUserBodyStruct,
 } from '../structs/userStructs';
-import likeService from '../services/likeService';
 import { Request, Response } from 'express';
 import { UserWithId } from '../../types/user-with-id';
+import { NONE_STRING, REFRESH_STRING, REFRESH_tOKEN_STRING } from '../config/constants';
 
 export async function createUser(req: Request, res: Response) {
   const data = create(req.body, CreateUserBodyStruct);
@@ -21,13 +19,13 @@ export async function createUser(req: Request, res: Response) {
 export async function login(req: Request, res: Response) {
   const reqUser = req.user as UserWithId;
   const accessToken = userService.createToken(reqUser);
-  const refreshToken = userService.createToken(reqUser, 'refresh');
+  const refreshToken = userService.createToken(reqUser, REFRESH_STRING);
   const { id: userId } = create({ id: reqUser.id }, IdParamsStruct);
   await userService.updateUser(userId, { refreshToken });
-  res.cookie('refreshToken', refreshToken, {
+  res.cookie(REFRESH_tOKEN_STRING, refreshToken, {
     path: '/users/token/refresh',
     httpOnly: true,
-    sameSite: 'none',
+    sameSite: NONE_STRING,
     secure: false,
   });
   res.json({ accessToken });
@@ -39,10 +37,10 @@ export async function refreshToken(req: Request, res: Response) {
   const { id: userId } = create({ id: reqUser.id }, IdParamsStruct);
   const { accessToken, newRefreshToken } = await userService.refreshToken(userId, refreshToken);
   await userService.updateUser(userId, { refreshToken: newRefreshToken });
-  res.cookie('refreshToken', newRefreshToken, {
+  res.cookie(REFRESH_tOKEN_STRING, newRefreshToken, {
     path: '/users/token/refresh',
     httpOnly: true,
-    sameSite: 'none',
+    sameSite: NONE_STRING,
     secure: false,
   });
   res.json({ accessToken });
@@ -69,54 +67,4 @@ export async function editPassword(req: Request, res: Response) {
   const { password: password } = create(req.body, CreatePasswordStruct);
   const user = await userService.updatePassword(userId, password);
   res.status(201).send(user);
-}
-
-export async function getOwnProducts(req: Request, res: Response) {
-  const { page, pageSize, orderBy } = create(req.query, GetListParamsStruct);
-  const reqUser = req.user as UserWithId;
-  const { id: userId } = create({ id: reqUser.id }, IdParamsStruct);
-
-  const products = await productService.getList({
-    skip: (page - 1) * pageSize,
-    take: pageSize,
-    orderBy: orderBy === 'recent' ? { createdAt: 'desc' } : { id: 'asc' },
-    where: {
-      userId: userId,
-    },
-  });
-
-  res.send(products);
-}
-
-export async function getLikedProducts(req: Request, res: Response) {
-  const { page, pageSize, orderBy } = create(req.query, GetListParamsStruct);
-  const reqUser = req.user as UserWithId;
-  const { id: userId } = create({ id: reqUser.id }, IdParamsStruct);
-
-  const likes = await likeService.getList({
-    where: {
-      userId: userId,
-      productId: { not: null },
-    },
-    select: { productId: true },
-  });
-  const likedProductIds = likes
-    .map((like) => like.productId)
-    .filter((element): element is number => element !== null);
-  const totalCount = likedProductIds.length;
-  const likedProducts = await productService.getList({
-    skip: (page - 1) * pageSize,
-    take: pageSize,
-    orderBy: orderBy === 'recent' ? { createdAt: 'desc' } : { id: 'asc' },
-    where: {
-      id: {
-        in: likedProductIds,
-      },
-    },
-  });
-
-  res.send({
-    list: likedProducts,
-    totalCount,
-  });
 }

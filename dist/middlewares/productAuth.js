@@ -28,7 +28,7 @@ function verifyProductOwner(req, res, next) {
                 throw new NotFoundError_1.default(productService_1.default.getEntityName(), productId);
             }
             if (product.userId !== userId) {
-                throw new ForbiddenError_1.default();
+                throw new ForbiddenError_1.default(productService_1.default.getEntityName(), productId, userId);
             }
             return next();
         }

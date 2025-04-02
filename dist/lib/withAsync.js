@@ -13,11 +13,7 @@ exports.withAsync = withAsync;
 function withAsync(handler) {
     return (req, res, next) => __awaiter(this, void 0, void 0, function* () {
         try {
-            // if (req.user) {
-            //   await handler(req as RequestWithUser, res, next);
-            // } else {
             yield handler(req, res, next);
-            // }
         }
         catch (e) {
             next(e);

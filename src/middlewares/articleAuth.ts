@@ -19,7 +19,7 @@ async function verifyAricleOwner(req: Request, res: Response, next: NextFunction
     }
 
     if (article.userId !== userId) {
-      throw new ForbiddenError();
+      throw new ForbiddenError(articleService.getEntityName(), articleId, userId);
     }
 
     return next();

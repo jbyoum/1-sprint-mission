@@ -5,11 +5,7 @@ export function withAsync(
 ) {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      // if (req.user) {
-      //   await handler(req as RequestWithUser, res, next);
-      // } else {
       await handler(req, res, next);
-      // }
     } catch (e) {
       next(e);
     }

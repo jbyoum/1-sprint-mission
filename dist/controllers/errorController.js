@@ -14,6 +14,7 @@ const FileExtError_1 = __importDefault(require("../lib/errors/FileExtError"));
 const EmptyUploadError_1 = __importDefault(require("../lib/errors/EmptyUploadError"));
 const multer_1 = __importDefault(require("multer"));
 const client_1 = require("@prisma/client");
+const EnvVarError_1 = __importDefault(require("../lib/errors/EnvVarError"));
 function defaultNotFoundHandler(_req, res, next) {
     res.status(404).send({ message: 'Not found' });
 }
@@ -50,25 +51,38 @@ function globalErrorHandler(err, _req, res, next) {
     }
     else if (err instanceof ForbiddenError_1.default) {
         /** From ~~Auth */
-        res.status(403).send({ message: 'Forbidden' });
+        res.status(403).send({ message: err.message });
+    }
+    else if (
+    /** Application error */
+    err instanceof NotFoundError_1.default) {
+        res.status(404).send({ message: err.message });
+    }
+    else if (
+    /** Prisma contraint error */
+    err instanceof client_1.Prisma.PrismaClientKnownRequestError &&
+        (err.code === 'P2001' || err.code === 'P2025')) {
+        res.status(404).send({ message: 'Not Found' });
     }
     else if (
     /** From ~~Service */
-    err instanceof AlreadyExstError_1.default ||
-        (err instanceof client_1.Prisma.PrismaClientKnownRequestError && err.code === 'P2002')) {
+    err instanceof AlreadyExstError_1.default) {
+        res.status(422).send({ message: err.message });
+    }
+    else if (
+    /** Prisma contraint error */
+    err instanceof client_1.Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2002') {
         res.status(422).send({ message: 'Already Exist' });
+    }
+    else if (err instanceof EnvVarError_1.default) {
+        /** Env Variable error */
+        res.status(500).send({ message: 'Missing Environment Variable' });
     }
     else if (err instanceof Error && 'code' in err) {
         /** Prisma error codes */
         console.error(err);
         res.status(500).send({ message: 'Failed to process data' });
-    }
-    else if (
-    /** Application error */
-    err instanceof NotFoundError_1.default ||
-        (err instanceof client_1.Prisma.PrismaClientKnownRequestError &&
-            (err.code === 'P2001' || err.code === 'P2025'))) {
-        res.status(404).send({ message: 'Not Found' });
     }
     else {
         console.error(err);

@@ -21,6 +21,8 @@ exports.createComment = createComment;
 exports.getCommentList = getCommentList;
 exports.likeProduct = likeProduct;
 exports.dislikeProduct = dislikeProduct;
+exports.getOwnProducts = getOwnProducts;
+exports.getLikedProducts = getLikedProducts;
 const superstruct_1 = require("superstruct");
 const NotFoundError_1 = __importDefault(require("../lib/errors/NotFoundError"));
 const commonStructs_1 = require("../structs/commonStructs");
@@ -28,9 +30,12 @@ const productStruct_1 = require("../structs/productStruct");
 const commentStruct_1 = require("../structs/commentStruct");
 const productService_1 = __importDefault(require("../services/productService"));
 const commentService_1 = __importDefault(require("../services/commentService"));
-const likeService_1 = __importDefault(require("../services/likeService"));
+const likeProductService_1 = __importDefault(require("../services/likeProductService"));
 const AlreadyExstError_1 = __importDefault(require("../lib/errors/AlreadyExstError"));
 const client_1 = require("@prisma/client");
+const ProductResDTO_1 = require("../lib/dtos/ProductResDTO");
+const CommentResDTO_1 = require("../lib/dtos/CommentResDTO");
+const constants_1 = require("../config/constants");
 function createProduct(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         const data = (0, superstruct_1.create)(req.body, productStruct_1.CreateProductBodyStruct);
@@ -53,8 +58,8 @@ function getProduct(req, res) {
         else {
             const reqUser = req.user;
             const { id: userId } = (0, superstruct_1.create)({ id: reqUser.id }, commonStructs_1.IdParamsStruct);
-            const like = yield likeService_1.default.getByProduct(userId, id);
-            res.send(Object.assign(Object.assign({}, product), { isLiked: !!like }));
+            const like = yield likeProductService_1.default.getById(userId, id);
+            res.send(new ProductResDTO_1.ProductWithLikeDTO(product, like));
         }
     });
 }
@@ -88,13 +93,10 @@ function getProductList(req, res) {
         const products = yield productService_1.default.getList({
             skip: (page - 1) * pageSize,
             take: pageSize,
-            orderBy: orderBy === 'recent' ? { id: 'desc' } : { id: 'asc' },
+            orderBy: orderBy === constants_1.RECENT_STRING ? { id: constants_1.DESC_STRING } : { id: constants_1.ASC_STRING },
             where: keyword ? search.where : {},
         });
-        res.send({
-            list: products,
-            totalCount,
-        });
+        res.send(new ProductResDTO_1.ProductListWithCountDTO(products, totalCount));
     });
 }
 function createComment(req, res) {
@@ -127,10 +129,7 @@ function getCommentList(req, res) {
         const comments = commentsWithCursorComment.slice(0, limit);
         const cursorComment = commentsWithCursorComment[comments.length - 1];
         const nextCursor = cursorComment ? cursorComment.id : null;
-        res.send({
-            list: comments,
-            nextCursor,
-        });
+        res.send(new CommentResDTO_1.CommentListWithCursorDTO(comments, nextCursor));
     });
 }
 function likeProduct(req, res) {
@@ -138,11 +137,11 @@ function likeProduct(req, res) {
         const { id: productId } = (0, superstruct_1.create)(req.params, commonStructs_1.IdParamsStruct);
         const reqUser = req.user;
         const { id: userId } = (0, superstruct_1.create)({ id: reqUser.id }, commonStructs_1.IdParamsStruct);
-        const existedLike = yield likeService_1.default.getByProduct(userId, productId);
+        const existedLike = yield likeProductService_1.default.getById(userId, productId);
         if (existedLike) {
-            throw new AlreadyExstError_1.default(likeService_1.default.getEntityName());
+            throw new AlreadyExstError_1.default(likeProductService_1.default.getEntityName());
         }
-        const like = yield likeService_1.default.create({
+        const like = yield likeProductService_1.default.create({
             userId: userId,
             productId: productId,
         });
@@ -154,11 +153,56 @@ function dislikeProduct(req, res) {
         const { id: productId } = (0, superstruct_1.create)(req.params, commonStructs_1.IdParamsStruct);
         const reqUser = req.user;
         const { id: userId } = (0, superstruct_1.create)({ id: reqUser.id }, commonStructs_1.IdParamsStruct);
-        const existedLike = yield likeService_1.default.getByProduct(userId, productId);
+        const existedLike = yield likeProductService_1.default.getById(userId, productId);
         if (!existedLike) {
-            throw new NotFoundError_1.default(likeService_1.default.getEntityName(), userId);
+            throw new NotFoundError_1.default(likeProductService_1.default.getEntityName(), userId);
         }
-        yield likeService_1.default.removeByProduct(userId, productId);
+        yield likeProductService_1.default.remove(userId, productId);
         res.status(204).send();
+    });
+}
+function getOwnProducts(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const { page, pageSize, orderBy } = (0, superstruct_1.create)(req.query, productStruct_1.GetProductListParamsStruct);
+        const reqUser = req.user;
+        const { id: userId } = (0, superstruct_1.create)({ id: reqUser.id }, commonStructs_1.IdParamsStruct);
+        const totalCount = yield productService_1.default.count({ where: { userId: userId } });
+        const products = yield productService_1.default.getList({
+            skip: (page - 1) * pageSize,
+            take: pageSize,
+            orderBy: orderBy === constants_1.RECENT_STRING ? { createdAt: constants_1.DESC_STRING } : { id: constants_1.ASC_STRING },
+            where: {
+                userId: userId,
+            },
+        });
+        res.send(new ProductResDTO_1.ProductListWithCountDTO(products, totalCount));
+    });
+}
+function getLikedProducts(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const { page, pageSize, orderBy } = (0, superstruct_1.create)(req.query, productStruct_1.GetProductListParamsStruct);
+        const reqUser = req.user;
+        const { id: userId } = (0, superstruct_1.create)({ id: reqUser.id }, commonStructs_1.IdParamsStruct);
+        const likes = yield likeProductService_1.default.getList({
+            where: {
+                userId: userId,
+            },
+            select: { productId: true },
+        });
+        const likedProductIds = likes
+            .map((like) => like.productId)
+            .filter((element) => element !== null);
+        const totalCount = likedProductIds.length;
+        const likedProducts = yield productService_1.default.getList({
+            skip: (page - 1) * pageSize,
+            take: pageSize,
+            orderBy: orderBy === constants_1.RECENT_STRING ? { createdAt: constants_1.DESC_STRING } : { id: constants_1.ASC_STRING },
+            where: {
+                id: {
+                    in: likedProductIds,
+                },
+            },
+        });
+        res.send(new ProductResDTO_1.ProductListWithCountDTO(likedProducts, totalCount));
     });
 }

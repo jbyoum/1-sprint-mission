@@ -5,12 +5,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.authenticatePartial = authenticatePartial;
 const passport_1 = __importDefault(require("./passport"));
+function isUser(user) {
+    return user instanceof Object;
+}
 function authenticatePartial(strategyName) {
     return (req, res, next) => {
-        passport_1.default.authenticate(strategyName, { session: false }, (_err, _user, _info) => {
-            // if (err) {
-            //   return next(err);
-            // }
+        passport_1.default.authenticate(strategyName, { session: false }, (_err, user, _info) => {
+            if (isUser(user)) {
+                req.user = user;
+            }
             next();
         })(req, res, next);
     };

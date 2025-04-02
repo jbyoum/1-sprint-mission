@@ -20,7 +20,7 @@ const accessTokenOptions = {
     secretOrKey: constants_1.JWT_SECRET,
 };
 const refreshTokenOptions = {
-    jwtFromRequest: (req) => req.cookies['refreshToken'],
+    jwtFromRequest: (req) => req.cookies[constants_1.REFRESH_tOKEN_STRING],
     secretOrKey: constants_1.JWT_SECRET,
 };
 function jwtVerify(payload, done) {

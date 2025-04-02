@@ -9,11 +9,14 @@ import {
 import { CreateCommentBodyStruct, GetCommentListParamsStruct } from '../structs/commentStruct';
 import articleService from '../services/articleService';
 import commentService from '../services/commentService';
-import likeService from '../services/likeService';
+import likeArticleService from '../services/likeArticleService';
 import AlreadyExstError from '../lib/errors/AlreadyExstError';
 import { Request, Response } from 'express';
 import { Prisma } from '@prisma/client';
 import { UserWithId } from '../../types/user-with-id';
+import { ArticleListWithCountDTO, ArticleWithLikeDTO } from '../lib/dtos/ArticleResDTO';
+import { CommentListWithCursorDTO } from '../lib/dtos/CommentResDTO';
+import { RECENT_STRING, DESC_STRING, ASC_STRING } from '../config/constants';
 
 export async function createArticle(req: Request, res: Response) {
   const reqUser = req.user as UserWithId;
@@ -40,8 +43,8 @@ export async function getArticle(req: Request, res: Response) {
   } else {
     const reqUser = req.user as UserWithId;
     const { id: userId } = create({ id: reqUser.id }, IdParamsStruct);
-    const like = await likeService.getByArticle(userId, id);
-    res.send({ ...article, isLiked: !!like });
+    const like = await likeArticleService.getById(userId, id);
+    res.send(new ArticleWithLikeDTO(article, like));
   }
 }
 
@@ -75,14 +78,10 @@ export async function getArticleList(req: Request, res: Response) {
   const articles = await articleService.getList({
     skip: (page - 1) * pageSize,
     take: pageSize,
-    orderBy: orderBy === 'recent' ? { createdAt: 'desc' } : { createdAt: 'asc' },
+    orderBy: orderBy === RECENT_STRING ? { createdAt: DESC_STRING } : { createdAt: ASC_STRING },
     where: keyword ? search.where : {},
   });
-  const response = {
-    list: articles,
-    totalCount,
-  };
-  res.send(response);
+  res.send(new ArticleListWithCountDTO(articles, totalCount));
 }
 
 export async function createComment(req: Request, res: Response) {
@@ -113,17 +112,14 @@ export async function getCommentList(req: Request, res: Response) {
     cursor: cursor ? { id: cursor } : undefined,
     take: limit + 1,
     where: { articleId },
-    orderBy: { createdAt: 'desc' },
+    orderBy: { createdAt: DESC_STRING },
   });
 
   const comments = commentsWithCursor.slice(0, limit);
   const cursorComment = commentsWithCursor[commentsWithCursor.length - 1];
   const nextCursor = cursorComment ? cursorComment.id : null;
 
-  res.send({
-    list: comments,
-    nextCursor,
-  });
+  res.send(new CommentListWithCursorDTO(comments, nextCursor));
 }
 
 export async function likeArticle(req: Request, res: Response) {
@@ -131,12 +127,12 @@ export async function likeArticle(req: Request, res: Response) {
   const reqUser = req.user as UserWithId;
   const { id: userId } = create({ id: reqUser.id }, IdParamsStruct);
 
-  const existedLike = await likeService.getByArticle(userId, articleId);
+  const existedLike = await likeArticleService.getById(userId, articleId);
   if (existedLike) {
-    throw new AlreadyExstError(likeService.getEntityName());
+    throw new AlreadyExstError(likeArticleService.getEntityName());
   }
 
-  const like = await likeService.create({
+  const like = await likeArticleService.create({
     userId: userId,
     articleId: articleId,
   });
@@ -148,11 +144,11 @@ export async function dislikeArticle(req: Request, res: Response) {
   const reqUser = req.user as UserWithId;
   const { id: userId } = create({ id: reqUser.id }, IdParamsStruct);
 
-  const existedLike = await likeService.getByArticle(userId, articleId);
+  const existedLike = await likeArticleService.getById(userId, articleId);
   if (!existedLike) {
-    throw new NotFoundError(likeService.getEntityName(), userId);
+    throw new NotFoundError(likeArticleService.getEntityName(), userId);
   }
 
-  await likeService.removeByArticle(userId, articleId);
+  await likeArticleService.remove(userId, articleId);
   res.status(204).send();
 }

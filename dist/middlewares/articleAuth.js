@@ -28,7 +28,7 @@ function verifyAricleOwner(req, res, next) {
                 throw new NotFoundError_1.default(articleService_1.default.getEntityName(), articleId);
             }
             if (article.userId !== userId) {
-                throw new ForbiddenError_1.default();
+                throw new ForbiddenError_1.default(articleService_1.default.getEntityName(), articleId, userId);
             }
             return next();
         }

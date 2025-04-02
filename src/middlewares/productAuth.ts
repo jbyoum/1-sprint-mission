@@ -19,7 +19,7 @@ async function verifyProductOwner(req: Request, res: Response, next: NextFunctio
     }
 
     if (product.userId !== userId) {
-      throw new ForbiddenError();
+      throw new ForbiddenError(productService.getEntityName(), productId, userId);
     }
 
     return next();
