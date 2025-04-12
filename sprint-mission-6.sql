@@ -163,13 +163,14 @@ LIMIT 10;
 */
 SELECT 
   o.date,
-  COUNT(DISTINCT o.id) AS total_orders,
+  COUNT(o.id) AS total_orders,
   SUM(od.quantity * p.price) AS total_amount
 FROM orders o
 JOIN order_details od ON od.order_id = o.id
 JOIN pizzas p ON p.id = od.pizza_id
 WHERE '2025-03-01' <= o.date AND o.date <= '2025-03-31'
-GROUP BY o.date;
+GROUP BY o.date
+ORDER BY o.date;
 
 /*
     3. `order`의 `id`가 78에 해당하는 주문 내역들을 조회합니다. 주문 내역에서 각각 주문한 피자의 이름을 `pizza_name`, 피자의 크기를 `pizza_size`, 피자 가격을 `pizza_price`, 수량을 `quantity`, 각 주문 내역의 총 금액을 `total_amount` 라는 이름으로 조회해 주세요.
