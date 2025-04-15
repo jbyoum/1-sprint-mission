@@ -1,0 +1,121 @@
+-- ENUM TYPE
+CREATE TYPE auth_provider_type AS ENUM ('email', 'google', 'kakao');
+
+-- USERS
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(10) NOT NULL,
+    profile_image VARCHAR(255)
+);
+
+-- USER_AUTH_TYPE
+CREATE TABLE user_auth_type (
+    id INTEGER PRIMARY KEY,
+    auth_provider auth_provider_type NOT NULL,
+    FOREIGN KEY (id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- EMAIL_AUTH
+CREATE TABLE email_auth (
+    id INTEGER PRIMARY KEY,
+    email VARCHAR(320) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    FOREIGN KEY (id) REFERENCES user_auth_type(id) ON DELETE CASCADE
+);
+
+-- KAKAO_AUTH
+CREATE TABLE kakao_auth (
+    id INTEGER PRIMARY KEY,
+    kakao_id BIGINT NOT NULL UNIQUE,
+    FOREIGN KEY (id) REFERENCES user_auth_type(id) ON DELETE CASCADE
+);
+
+-- GOOGLE_AUTH
+CREATE TABLE google_auth (
+    id INTEGER PRIMARY KEY,
+    google_sub VARCHAR(30) NOT NULL UNIQUE,
+    FOREIGN KEY (id) REFERENCES user_auth_type(id) ON DELETE CASCADE
+);
+
+-- PRODUCTS
+CREATE TABLE products (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    name VARCHAR(10) NOT NULL,
+    description VARCHAR(500) NOT NULL,
+    image_url VARCHAR(255),
+    price INTEGER NOT NULL,
+    created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+-- PRODUCT_COMMENTS
+CREATE TABLE product_comments (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+    content VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+-- PRODUCT_LIKES
+CREATE TABLE product_likes (
+    product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    PRIMARY KEY (product_id, user_id)
+);
+
+-- TAGS
+CREATE TABLE tags (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(5) NOT NULL UNIQUE
+);
+
+-- PRODUCT_TAG
+CREATE TABLE product_tag (
+    product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+    tag_id INTEGER NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
+    PRIMARY KEY (product_id, tag_id)
+);
+
+-- ARTICLES
+CREATE TABLE articles (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    title VARCHAR(20) NOT NULL,
+    content VARCHAR(500) NOT NULL,
+    created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+-- ARTICLE_COMMENTS
+CREATE TABLE article_comments (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    article_id INTEGER NOT NULL REFERENCES articles(id) ON DELETE CASCADE,
+    content VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+-- ARTICLE_LIKES
+CREATE TABLE article_likes (
+    article_id INTEGER NOT NULL REFERENCES articles(id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    PRIMARY KEY (article_id, user_id)
+);
+
+-- ARTICLE_IMAGES
+CREATE TABLE article_images (
+    id SERIAL PRIMARY KEY,
+    article_id INTEGER NOT NULL REFERENCES articles(id) ON DELETE CASCADE,
+    image_url VARCHAR(255) NOT NULL
+);
+
+-- COMMENT_NOTIFICATIONS
+CREATE TABLE comment_notifications (
+    id SERIAL PRIMARY KEY,
+    target_id INTEGER NOT NULL,
+    target_type VARCHAR(50) NOT NULL,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    message VARCHAR(200),
+    target_url VARCHAR(255) NOT NULL
+);
