@@ -67,7 +67,7 @@ Figma에는 상품에 대한 알림만 나와있지만, 게시글에 대한 알�
 ## ERD
 
 <div align="center">
-<img src="./erd.png" width="90%" height="90%">
+<img src="./sprint-mission-7/erd.png" width="90%" height="90%">
 </div>
 
 # 생성 SQL
