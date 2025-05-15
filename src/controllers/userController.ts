@@ -9,6 +9,7 @@ import {
 import { Request, Response } from 'express';
 import { UserWithId } from '../../types/user-with-id';
 import { NONE_STRING, REFRESH_STRING, REFRESH_tOKEN_STRING } from '../config/constants';
+import notificationService from '../services/notificationService';
 
 export async function createUser(req: Request, res: Response) {
   const data = create(req.body, CreateUserBodyStruct);
@@ -63,4 +64,10 @@ export async function editPassword(req: Request, res: Response) {
   const { password: password } = create(req.body, CreatePasswordStruct);
   const user = await userService.updatePassword(userId, password);
   res.status(201).send(user);
+}
+
+export async function getNotifications(req: Request, res: Response) {
+  const reqUser = req.user as UserWithId;
+  const notifications = await notificationService.getUserNotifications(reqUser.id);
+  res.send(notifications);
 }

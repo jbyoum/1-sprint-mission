@@ -26,6 +26,8 @@ model User {
   likesProduct LikeProduct[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
+
+  notifications Notification[]
 }
 
 model Article {
@@ -87,4 +89,19 @@ model LikeProduct {
   createdAt DateTime @default(now())
 
   @@id([userId, productId])
+}
+
+model Notification {
+  id        Int              @id @default(autoincrement())
+  read      Boolean          @default(false)
+  type      NotificationType
+  payload   Json
+  createdAt DateTime         @default(now())
+  User      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+}
+
+enum NotificationType {
+  NEW_COMMENT
+  PRICE_CHANGE
 }

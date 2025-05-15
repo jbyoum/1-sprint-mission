@@ -2,12 +2,7 @@ import { Strategy as JwtStrategy, ExtractJwt, VerifiedCallback } from 'passport-
 import { JWT_SECRET, REFRESH_tOKEN_STRING } from '../../config/constants';
 import userService from '../../services/userService';
 import { Request } from 'express';
-
-interface JwtPayload {
-  userId: string;
-  iat?: number;
-  exp?: number;
-}
+import { JwtPayload } from '../../types/JwtPayload';
 
 const accessTokenOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),

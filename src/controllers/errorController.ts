@@ -9,6 +9,7 @@ import multer from 'multer';
 import { Prisma } from '@prisma/client';
 import { NextFunction, Request, Response } from 'express';
 import EnvVarError from '../lib/errors/EnvVarError';
+import CommonError from '../lib/errors/CommonError';
 
 export function defaultNotFoundHandler(_req: Request, res: Response, next: NextFunction) {
   res.status(404).send({ message: 'Not found' });
@@ -66,6 +67,8 @@ export function globalErrorHandler(err: unknown, _req: Request, res: Response, n
   } else if (err instanceof EnvVarError) {
     /** Env Variable error */
     res.status(500).send({ message: 'Missing Environment Variable' });
+  } else if (err instanceof CommonError) {
+    res.status(err.status).send({ message: err.message });
   } else if (err instanceof Error && 'code' in err) {
     /** Prisma error codes */
     console.error(err);

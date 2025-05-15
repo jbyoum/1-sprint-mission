@@ -5,6 +5,7 @@ import {
   editInfo,
   editPassword,
   getInfo,
+  getNotifications,
   login,
   refreshToken,
 } from '../controllers/userController';
@@ -38,6 +39,11 @@ usersRouter.patch(
   '/password',
   passport.authenticate(ACCESS_TOKEN_STRATEGY, { session: false }),
   withAsync(editPassword),
+);
+usersRouter.get(
+  '/notifications',
+  passport.authenticate(ACCESS_TOKEN_STRATEGY, { session: false }),
+  withAsync(getNotifications),
 );
 
 export default usersRouter;
