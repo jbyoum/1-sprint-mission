@@ -4,6 +4,7 @@ import articleRepository from '../repositories/articleRepository';
 import { emitAlertToUser } from '../sockets/handlers/notificationHandler';
 import notificationService from './notificationService';
 import { CreateCommentDTO } from '../lib/dtos/CommentDTO';
+import productRepository from '../repositories/productRepository';
 
 async function handleNotification(comment: Comment) {
   if (!comment.articleId) return;
@@ -16,7 +17,7 @@ async function handleNotification(comment: Comment) {
     `${article.title} 게시글에 댓글이 달렸습니다.`,
     NotificationType.NEW_COMMENT,
   );
-  emitAlertToUser(article.userId, notification);
+  if (process.env.NODE_ENV !== 'test') emitAlertToUser(article.userId, notification);
 }
 
 async function create(
@@ -28,9 +29,22 @@ async function create(
   const comment = await commentRepository.create(
     new CreateCommentDTO(content, userId, articleId, productId),
   );
-  handleNotification(comment).catch((error) => {
-    console.error('Error handling comment notification:', error);
-  });
+
+  let ownerId: number | undefined;
+  if (articleId || productId) {
+    const [article, product] = await Promise.all([
+      articleId ? articleRepository.getById(articleId) : Promise.resolve(null),
+      productId ? productRepository.getById(productId) : Promise.resolve(null),
+    ]);
+    ownerId = article?.userId ?? product?.userId;
+  }
+  if (ownerId !== userId) {
+    handleNotification(comment).catch((error) => {
+      if (process.env.NODE_ENV !== 'test')
+        console.error('Error handling comment notification:', error);
+    });
+  }
+
   return comment;
 }
 

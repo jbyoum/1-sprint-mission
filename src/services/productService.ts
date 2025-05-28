@@ -28,14 +28,14 @@ async function handleNotification(existingProduct: Product | null, product: Prod
   });
   if (likes.length === 0) return;
 
-  Promise.all(
+  Promise.allSettled(
     likes.map(async (like) => {
       const notification = await notificationService.createNotification(
         like.userId,
         `관심 상품 "${product.name}"의 가격이 변경되었습니다.`,
         NotificationType.PRICE_CHANGE,
       );
-      emitAlertToUser(like.userId, notification);
+      if (process.env.NODE_ENV !== 'test') emitAlertToUser(like.userId, notification);
     }),
   );
 }

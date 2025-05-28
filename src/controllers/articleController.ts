@@ -90,6 +90,11 @@ export async function createComment(req: Request, res: Response) {
   const reqUser = req.user as UserWithId;
   const { id: userId } = create({ id: reqUser.id }, IdParamsStruct);
 
+  const article = await articleService.getById(articleId);
+  if (!article) {
+    throw new NotFoundError(articleService.getEntityName(), articleId);
+  }
+
   const comment = await commentService.create(content, userId, articleId);
 
   res.status(201).send(comment);
@@ -122,6 +127,11 @@ export async function likeArticle(req: Request, res: Response) {
   const { id: articleId } = create(req.params, IdParamsStruct);
   const reqUser = req.user as UserWithId;
   const { id: userId } = create({ id: reqUser.id }, IdParamsStruct);
+
+  const article = await articleService.getById(articleId);
+  if (!article) {
+    throw new NotFoundError(articleService.getEntityName(), articleId);
+  }
 
   const existedLike = await likeArticleService.getById(userId, articleId);
   if (existedLike) {

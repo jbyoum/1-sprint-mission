@@ -3,17 +3,14 @@ import cors from 'cors';
 import path from 'path';
 import cookieParser from 'cookie-parser';
 import passport from './middlewares/passport/passport';
-import { PORT, UPLOAD_FOLDER, STATIC_PATH } from './config/constants';
+import { UPLOAD_FOLDER, STATIC_PATH } from './config/constants';
 import usersRouter from './routers/userRouter';
 import articlesRouter from './routers/articleRouter';
 import productsRouter from './routers/productRouter';
 import commentsRouter from './routers/commentRouter';
 import imagesRouter from './routers/imageRouter';
-import { defaultNotFoundHandler, globalErrorHandler } from './controllers/errorController';
-
-import { createServer } from 'http';
-import registerSocketServer from './sockets';
 import notificationsRouter from './routers/notificationRouter';
+import { defaultNotFoundHandler, globalErrorHandler } from './controllers/errorController';
 
 const app = express();
 
@@ -35,9 +32,4 @@ app.use('/notifications', notificationsRouter);
 app.use(defaultNotFoundHandler);
 app.use(globalErrorHandler);
 
-const server = createServer(app);
-registerSocketServer(server);
-
-server.listen(PORT, () => {
-  console.log(`Server started on port ${PORT}`);
-});
+export default app;

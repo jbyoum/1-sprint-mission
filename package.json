@@ -1,21 +1,28 @@
 {
   "scripts": {
     "build": "tsc",
-    "start": "ts-node src/main.ts",
-    "dev": "nodemon --watch src src/main.ts"
+    "seed": "ts-node prisma/seed.ts",
+    "start": "ts-node src/server.ts",
+    "dev": "nodemon --watch src src/server.ts",
+    "test": "jest --runInBand --detectOpenHandles"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/cookie-parser": "^1.4.8",
     "@types/cors": "^2.8.17",
     "@types/dotenv": "^6.1.1",
+    "@types/jest": "^29.5.14",
     "@types/multer": "^1.4.12",
     "@types/passport": "^1.0.17",
     "@types/passport-jwt": "^4.0.1",
     "@types/passport-local": "^1.0.38",
+    "@types/supertest": "^6.0.3",
     "prettier": "^3.3.2",
     "prisma": "^5.16.2",
-    "ts-node": "^10.9.2"
+    "supertest": "^7.1.1",
+    "ts-jest": "^29.3.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
   },
   "dependencies": {
     "@prisma/client": "^5.16.2",
@@ -24,14 +31,12 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "file-type": "^20.4.1",
     "multer": "^1.4.5-lts.1",
     "nodemon": "^3.1.9",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
     "socket.io": "^4.8.1",
-    "superstruct": "^2.0.2",
-    "typescript": "^5.8.2"
+    "superstruct": "^2.0.2"
   }
 }

@@ -9,7 +9,7 @@ import CommonError from '../lib/errors/CommonError';
 let io: SocketIOServer;
 
 export const getIO = () => {
-  if (!io) {
+  if (!io && process.env.NODE_ENV !== 'test') {
     throw new CommonError('Socket.io not initialized', 500);
   }
   return io;

@@ -71,10 +71,10 @@ export function globalErrorHandler(err: unknown, _req: Request, res: Response, n
     res.status(err.status).send({ message: err.message });
   } else if (err instanceof Error && 'code' in err) {
     /** Prisma error codes */
-    console.error(err);
+    if (process.env.NODE_ENV !== 'test') console.error(err);
     res.status(500).send({ message: 'Failed to process data' });
   } else {
-    console.error(err);
+    if (process.env.NODE_ENV !== 'test') console.error(err);
     res.status(500).send({ message: 'Internal server error' });
   }
 }

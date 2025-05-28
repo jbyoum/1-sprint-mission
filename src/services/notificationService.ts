@@ -24,7 +24,7 @@ async function markNotificationAsRead(id: number) {
 }
 
 async function markMultipleAsRead(ids: number[]) {
-  return await Promise.all(ids.map((id) => markNotificationAsRead(id)));
+  return await Promise.allSettled(ids.map((id) => markNotificationAsRead(id)));
 }
 
 export default {
