@@ -4,6 +4,7 @@ dotenv.config();
 
 if (
   !process.env.JWT_SECRET ||
+  !process.env.DATABASE_URL ||
   !process.env.S3_ENDPOINT ||
   !process.env.IAM_ACCESS_KEY ||
   !process.env.IAM_SECRET_ACCESS_KEY
@@ -11,17 +12,7 @@ if (
   throw new EnvVarError();
 }
 
-const databaseUrl =
-  process.env.NODE_ENV === 'production'
-    ? process.env.DATABASE_URL_PROD
-    : process.env.DATABASE_URL_DEV;
-
-if (!databaseUrl) {
-  throw new EnvVarError();
-}
-
-// export const DATABASE_URL = process.env.DATABASE_URL;
-export const DATABASE_URL = databaseUrl;
+export const DATABASE_URL = process.env.DATABASE_URL;
 export const PORT = process.env.PORT || 3000;
 export const S3_ENDPOINT = process.env.S3_ENDPOINT;
 export const IAM_ACCESS_KEY = process.env.IAM_ACCESS_KEY;
