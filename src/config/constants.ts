@@ -2,12 +2,30 @@ import dotenv from 'dotenv';
 import EnvVarError from '../lib/errors/EnvVarError';
 dotenv.config();
 
-if (!process.env.JWT_SECRET || !process.env.DATABASE_URL) {
+if (
+  !process.env.JWT_SECRET ||
+  !process.env.S3_ENDPOINT ||
+  !process.env.IAM_ACCESS_KEY ||
+  !process.env.IAM_SECRET_ACCESS_KEY
+) {
   throw new EnvVarError();
 }
 
-export const DATABASE_URL = process.env.DATABASE_URL;
+const databaseUrl =
+  process.env.NODE_ENV === 'production'
+    ? process.env.DATABASE_URL_PROD
+    : process.env.DATABASE_URL_DEV;
+
+if (!databaseUrl) {
+  throw new EnvVarError();
+}
+
+// export const DATABASE_URL = process.env.DATABASE_URL;
+export const DATABASE_URL = databaseUrl;
 export const PORT = process.env.PORT || 3000;
+export const S3_ENDPOINT = process.env.S3_ENDPOINT;
+export const IAM_ACCESS_KEY = process.env.IAM_ACCESS_KEY;
+export const IAM_SECRET_ACCESS_KEY = process.env.IAM_SECRET_ACCESS_KEY;
 export const UPLOAD_FOLDER = 'public';
 export const STATIC_PATH = '/public';
 export const JWT_SECRET = process.env.JWT_SECRET;
