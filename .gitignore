@@ -9,3 +9,4 @@ dist/
 public/*
 !public/.gitkeep
 !public/socket-client-test.html
+!public/index.html

@@ -17,6 +17,8 @@
     "@types/passport-jwt": "^4.0.1",
     "@types/passport-local": "^1.0.38",
     "@types/supertest": "^6.0.3",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.8",
     "prettier": "^3.3.2",
     "prisma": "^5.16.2",
     "supertest": "^7.1.1",
@@ -38,6 +40,8 @@
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
     "socket.io": "^4.8.1",
-    "superstruct": "^2.0.2"
+    "superstruct": "^2.0.2",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   }
 }

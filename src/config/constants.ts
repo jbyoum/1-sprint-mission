@@ -7,16 +7,19 @@ if (
   !process.env.DATABASE_URL ||
   !process.env.S3_ENDPOINT ||
   !process.env.IAM_ACCESS_KEY ||
-  !process.env.IAM_SECRET_ACCESS_KEY
+  !process.env.IAM_SECRET_ACCESS_KEY ||
+  !process.env.SERVER_URL
 ) {
   throw new EnvVarError();
 }
 
 export const DATABASE_URL = process.env.DATABASE_URL;
 export const PORT = process.env.PORT || 3000;
+export const SERVER_URL = process.env.SERVER_URL;
 export const S3_ENDPOINT = process.env.S3_ENDPOINT;
 export const IAM_ACCESS_KEY = process.env.IAM_ACCESS_KEY;
 export const IAM_SECRET_ACCESS_KEY = process.env.IAM_SECRET_ACCESS_KEY;
+export const PROTOCOL = process.env.PROTOCOL || 'http';
 export const UPLOAD_FOLDER = 'public';
 export const STATIC_PATH = '/public';
 export const JWT_SECRET = process.env.JWT_SECRET;
