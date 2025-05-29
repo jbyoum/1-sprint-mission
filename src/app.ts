@@ -5,7 +5,7 @@ import cors from 'cors';
 import path from 'path';
 import cookieParser from 'cookie-parser';
 import passport from './middlewares/passport/passport';
-import { UPLOAD_FOLDER, STATIC_PATH, PORT, PROTOCOL, SERVER_URL } from './config/constants';
+import { UPLOAD_FOLDER, STATIC_PATH } from './config/constants';
 import usersRouter from './routers/userRouter';
 import articlesRouter from './routers/articleRouter';
 import productsRouter from './routers/productRouter';
