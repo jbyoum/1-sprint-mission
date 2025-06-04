@@ -501,7 +501,7 @@ export async function dislikeProduct(req: Request, res: Response) {
  *         required: false
  *         schema:
  *           type: string
- *           enum: [recent, asc]
+ *           enum: [recent]
  *         description: 정렬 기준 recent
  *     responses:
  *       200:
@@ -560,7 +560,7 @@ export async function getOwnProducts(req: Request, res: Response) {
  *         required: false
  *         schema:
  *           type: string
- *           enum: [recent, asc]
+ *           enum: [recent]
  *         description: 정렬 기준 recent
  *     responses:
  *       200:

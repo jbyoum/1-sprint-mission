@@ -1,5 +1,6 @@
-const { PrismaClient } = require('@prisma/client');
-const {
+// seed.ts
+import { PrismaClient } from '@prisma/client';
+import {
   mockUsers,
   mockArticles,
   mockProducts,
@@ -7,11 +8,11 @@ const {
   mockLikeArticles,
   mockLikeProducts,
   mockNotifications,
-} = require('./mock');
+} from './mock';
 
 const prisma = new PrismaClient();
 
-async function seedDatabase() {
+export async function seedDatabase(): Promise<void> {
   await prisma.notification.deleteMany();
   await prisma.likeArticle.deleteMany();
   await prisma.likeProduct.deleteMany();
@@ -29,6 +30,7 @@ async function seedDatabase() {
   await prisma.notification.createMany({ data: mockNotifications });
 }
 
+// 직접 실행할 경우만 동작
 if (require.main === module) {
   seedDatabase()
     .then(() => {
@@ -42,7 +44,3 @@ if (require.main === module) {
       await prisma.$disconnect();
     });
 }
-
-module.exports = {
-  seedDatabase,
-};

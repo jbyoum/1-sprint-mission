@@ -212,7 +212,7 @@ export async function deleteArticle(req: Request, res: Response) {
  *         required: false
  *         schema:
  *           type: string
- *           enum: [recent, asc, desc]
+ *           enum: [recent]
  *         description: 정렬 기준
  *       - in: query
  *         name: keyword
