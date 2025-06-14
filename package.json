@@ -4,7 +4,11 @@
     "seed": "ts-node prisma/seed.ts",
     "start": "ts-node src/server.ts",
     "dev": "nodemon --watch src src/server.ts",
-    "test": "jest --runInBand --detectOpenHandles"
+    "test": "jest --runInBand --detectOpenHandles",
+    "typecheck": "tsc --noEmit",
+    "prisma:migrate": "npx prisma migrate dev",
+    "prisma:deploy": "npx prisma migrate deploy && npx prisma generate",
+    "test:ci": "jest --runInBand --detectOpenHandles"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
