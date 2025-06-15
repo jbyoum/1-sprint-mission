@@ -1,9 +1,15 @@
 import request from 'supertest';
 import app from '../app';
-//@ts-ignore
-import { seedDatabase } from '../../prisma/seed';
-//@ts-ignore
-import { mockUsers } from '../../prisma/mock';
+import path from 'path';
+const seedPath = path.resolve(__dirname, '../../prisma/seed');
+const { seedDatabase } = require(seedPath);
+const mockPath = path.resolve(__dirname, '../../prisma/mock');
+const { mockUsers } = require(mockPath);
+
+// //@ts-ignore
+// import { seedDatabase } from '../../prisma/seed';
+// //@ts-ignore
+// import { mockUsers } from '../../prisma/mock';
 
 import TestAgent from 'supertest/lib/agent';
 

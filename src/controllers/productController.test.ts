@@ -1,14 +1,20 @@
 import request from 'supertest';
 import app from '../app';
 import likeProductService from '../services/likeProductService';
-//@ts-ignore
-import { seedDatabase } from '../../prisma/seed';
-//@ts-ignore
-import { mockProducts } from '../../prisma/mock';
-//@ts-ignore
-import { mockUsers } from '../../prisma/mock';
-//@ts-ignore
-import { mockComments } from '../../prisma/mock';
+import path from 'path';
+const seedPath = path.resolve(__dirname, '../../prisma/seed');
+const { seedDatabase } = require(seedPath);
+const mockPath = path.resolve(__dirname, '../../prisma/mock');
+const { mockProducts, mockUsers, mockComments } = require(mockPath);
+
+// //@ts-ignore
+// import { seedDatabase } from '../../prisma/seed';
+// //@ts-ignore
+// import { mockProducts } from '../../prisma/mock';
+// //@ts-ignore
+// import { mockUsers } from '../../prisma/mock';
+// //@ts-ignore
+// import { mockComments } from '../../prisma/mock';
 
 import TestAgent from 'supertest/lib/agent';
 

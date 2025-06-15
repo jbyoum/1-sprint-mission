@@ -14,8 +14,9 @@ import imagesRouter from './routers/imageRouter';
 import notificationsRouter from './routers/notificationRouter';
 import { defaultNotFoundHandler, globalErrorHandler } from './controllers/errorController';
 import { renderHtmlWithUrl } from './lib/htmlRenderer';
-//@ts-ignore
-import { seedDatabase } from '../prisma/seed';
+
+const seedPath = path.resolve(__dirname, '../prisma/seed');
+const { seedDatabase } = require(seedPath);
 
 const app = express();
 
