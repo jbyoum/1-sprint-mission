@@ -2,7 +2,7 @@
   "scripts": {
     "build": "tsc",
     "seed": "ts-node prisma/seed.ts",
-    "start": "ts-node src/server.ts",
+    "start": "node dist/server.js",
     "dev": "nodemon --watch src src/server.ts",
     "test": "jest --runInBand --detectOpenHandles",
     "typecheck": "tsc --noEmit",

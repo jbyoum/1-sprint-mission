@@ -1,0 +1,27 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          port: 22
+          script: |
+            cd /home/ec2-user/server/1-sprint-mission # EC2에서 프로젝트가 있는 디렉토리
+            git pull origin main      # 최신 코드 가져오기
+            npm install               # 의존성 설치
+            npm run build             # TypeScript 빌드
+            npm run prisma:deploy     # Prisma 마이그레이션 적용
+            pm2 reload 'codeit - Panda Market'         # PM2로 앱 재시작
+            echo "Deployment successful!" #테스트용주석
